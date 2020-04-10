@@ -16,5 +16,3 @@ MVC
 
 
 <img src="images/image 3.png">
-
-![Alt text](/images/image1.jpg?raw=true "Optional Title")
