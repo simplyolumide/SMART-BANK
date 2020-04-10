@@ -14,5 +14,3 @@ Used Design Patterns
 MVC
 
 ![](images/image 1.jpg)
-![](images/image 2.jpg)
-![](images/image 3.jpg)
