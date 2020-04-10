@@ -18,4 +18,4 @@ MVC
 <img src="images/image 3.png">
 
 
-![images](image1.jpg)
+![images](image3.png)
