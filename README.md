@@ -13,4 +13,4 @@ JAVASCRIPT
 Used Design Patterns
 MVC
 
-<img src="images/image1.jpg">
+<img src="images/image 1.jpg">
