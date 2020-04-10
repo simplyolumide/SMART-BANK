@@ -12,5 +12,4 @@ JAVASCRIPT
 
 Used Design Patterns
 MVC
-
-<img src="images/image 3.png">
+![](images/image3.png)
