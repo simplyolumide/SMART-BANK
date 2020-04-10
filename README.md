@@ -13,4 +13,4 @@ JAVASCRIPT
 Used Design Patterns
 MVC
 
-![](images/image 1.jpg)
+![](images/image1.jpg)
