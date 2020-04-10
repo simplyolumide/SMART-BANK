@@ -1,0 +1,303 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Transactions_List.Page_Render();
+
+	// Check action result
+	if (Transactions_List.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+@if (!Transactions_List.IsExport()) {
+<script>
+var fTransactionslist, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "list";
+	fTransactionslist = currentForm = new ew.Form("fTransactionslist", "list");
+	fTransactionslist.formKeyCountName = '@(Transactions_List.FormKeyCountName)';
+	loadjs.done("fTransactionslist");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+}
+@if (!Transactions_List.IsExport()) {
+<div class="btn-toolbar ew-toolbar">
+@if (Transactions_List.TotalRecords > 0 && Transactions_List.ExportOptions.Visible) {
+	Transactions_List.ExportOptions.Render("body");
+}
+@if (Transactions_List.ImportOptions.Visible) {
+	Transactions_List.ImportOptions.Render("body");
+}
+<div class="clearfix"></div>
+</div>
+}
+@{ Transactions_List.RenderOtherOptions(); }
+@Transactions_List.ShowPageHeader()
+@Transactions_List.ShowMessages()
+@if (Transactions_List.TotalRecords > 0 || !Empty(Transactions.CurrentAction)) {
+<div class="card ew-card ew-grid@(Transactions_List.IsAddOrEdit ? " ew-grid-add-edit" : "") Transactions">
+@if (!Transactions_List.IsExport()) {
+<div class="card-header ew-grid-upper-panel">
+@if (!Transactions_List.IsGridAdd) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Html.Raw(Transactions_List.Pager.Render())
+</form>
+}
+<div class="ew-list-other-options">
+@Transactions_List.OtherOptions.RenderBody()
+</div>
+<div class="clearfix"></div>
+</div>
+}
+<form name="fTransactionslist" id="fTransactionslist" class="form-inline ew-form ew-list-form" action="@AppPath(CurrentPageName())" method="post">
+@if (Transactions_List.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<div id="gmp_Transactions" class="@ResponsiveTableClass() card-body ew-grid-middle-panel">
+@if (Transactions_List.TotalRecords > 0 || Transactions_List.IsGridEdit) {
+<table id="tbl_Transactionslist" class="table ew-table"><!-- .ew-table -->
+<thead>
+	<tr class="ew-table-header">
+@{
+
+	// Header row
+	Transactions.RowType = Config.RowTypeHeader;
+
+	// Render list options
+	await Transactions_List.RenderListOptions();
+
+	// Render list options (header, left)
+	Transactions_List.ListOptions.Render("header", "left");
+}
+@if (Transactions_List.TransactionID.Visible) { // Transactions_List.TransactionID.Visible (begin)
+	if (Transactions_List.SortUrl(Transactions_List.TransactionID) == "") {
+		<th data-name="TransactionID" class="@(Transactions_List.TransactionID.HeaderCellClass)"><div id="elh_Transactions_TransactionID" class="Transactions_TransactionID"><div class="ew-table-header-caption">@Html.Raw(Transactions_List.TransactionID.Caption)</div></div></th>
+	} else {
+		<th data-name="TransactionID" class="@(Transactions_List.TransactionID.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(Transactions_List.SortUrl(Transactions_List.TransactionID))', 1);"><div id="elh_Transactions_TransactionID" class="Transactions_TransactionID">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(Transactions_List.TransactionID.Caption)</span><span class="ew-table-header-sort">@if (Transactions_List.TransactionID.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (Transactions_List.TransactionID.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* Transactions_List.TransactionID.Visible (end) *@
+@if (Transactions_List.TransactionDate.Visible) { // Transactions_List.TransactionDate.Visible (begin)
+	if (Transactions_List.SortUrl(Transactions_List.TransactionDate) == "") {
+		<th data-name="TransactionDate" class="@(Transactions_List.TransactionDate.HeaderCellClass)"><div id="elh_Transactions_TransactionDate" class="Transactions_TransactionDate"><div class="ew-table-header-caption">@Html.Raw(Transactions_List.TransactionDate.Caption)</div></div></th>
+	} else {
+		<th data-name="TransactionDate" class="@(Transactions_List.TransactionDate.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(Transactions_List.SortUrl(Transactions_List.TransactionDate))', 1);"><div id="elh_Transactions_TransactionDate" class="Transactions_TransactionDate">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(Transactions_List.TransactionDate.Caption)</span><span class="ew-table-header-sort">@if (Transactions_List.TransactionDate.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (Transactions_List.TransactionDate.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* Transactions_List.TransactionDate.Visible (end) *@
+@if (Transactions_List.AccountID.Visible) { // Transactions_List.AccountID.Visible (begin)
+	if (Transactions_List.SortUrl(Transactions_List.AccountID) == "") {
+		<th data-name="AccountID" class="@(Transactions_List.AccountID.HeaderCellClass)"><div id="elh_Transactions_AccountID" class="Transactions_AccountID"><div class="ew-table-header-caption">@Html.Raw(Transactions_List.AccountID.Caption)</div></div></th>
+	} else {
+		<th data-name="AccountID" class="@(Transactions_List.AccountID.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(Transactions_List.SortUrl(Transactions_List.AccountID))', 1);"><div id="elh_Transactions_AccountID" class="Transactions_AccountID">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(Transactions_List.AccountID.Caption)</span><span class="ew-table-header-sort">@if (Transactions_List.AccountID.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (Transactions_List.AccountID.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* Transactions_List.AccountID.Visible (end) *@
+@if (Transactions_List.Debit.Visible) { // Transactions_List.Debit.Visible (begin)
+	if (Transactions_List.SortUrl(Transactions_List.Debit) == "") {
+		<th data-name="Debit" class="@(Transactions_List.Debit.HeaderCellClass)"><div id="elh_Transactions_Debit" class="Transactions_Debit"><div class="ew-table-header-caption">@Html.Raw(Transactions_List.Debit.Caption)</div></div></th>
+	} else {
+		<th data-name="Debit" class="@(Transactions_List.Debit.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(Transactions_List.SortUrl(Transactions_List.Debit))', 1);"><div id="elh_Transactions_Debit" class="Transactions_Debit">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(Transactions_List.Debit.Caption)</span><span class="ew-table-header-sort">@if (Transactions_List.Debit.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (Transactions_List.Debit.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* Transactions_List.Debit.Visible (end) *@
+@if (Transactions_List.Credit.Visible) { // Transactions_List.Credit.Visible (begin)
+	if (Transactions_List.SortUrl(Transactions_List.Credit) == "") {
+		<th data-name="Credit" class="@(Transactions_List.Credit.HeaderCellClass)"><div id="elh_Transactions_Credit" class="Transactions_Credit"><div class="ew-table-header-caption">@Html.Raw(Transactions_List.Credit.Caption)</div></div></th>
+	} else {
+		<th data-name="Credit" class="@(Transactions_List.Credit.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(Transactions_List.SortUrl(Transactions_List.Credit))', 1);"><div id="elh_Transactions_Credit" class="Transactions_Credit">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(Transactions_List.Credit.Caption)</span><span class="ew-table-header-sort">@if (Transactions_List.Credit.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (Transactions_List.Credit.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* Transactions_List.Credit.Visible (end) *@
+@{
+
+	// Render list options (header, right)
+	Transactions_List.ListOptions.Render("header", "right");
+}
+	</tr>
+</thead>
+<tbody>
+@{ // Begin Code
+if (Transactions_List.ExportAll && Transactions_List.IsExport()) {
+	Transactions_List.StopRecord = Transactions_List.TotalRecords;
+} else {
+
+	// Set the last record to display
+	if (Transactions_List.TotalRecords > Transactions_List.StartRecord + Transactions_List.DisplayRecords - 1) {
+		Transactions_List.StopRecord = Transactions_List.StartRecord + Transactions_List.DisplayRecords - 1;
+	} else {
+		Transactions_List.StopRecord = Transactions_List.TotalRecords;
+	}
+}
+if (Transactions_List.Recordset != null && Transactions_List.Recordset.HasRows) {
+	if (!Transactions_List.Connection.SelectOffset) { // DN
+		for (int i = 1; i <= Transactions_List.StartRecord - 1; i++) { // Move to first record
+			if (await Transactions_List.Recordset.ReadAsync()) {
+				Transactions_List.RecordCount++;
+			}
+		}
+	} else {
+		Transactions_List.RecordCount = Transactions_List.StartRecord - 1;
+	}
+} else if (!Transactions_List.AllowAddDeleteRow && Transactions_List.StopRecord == 0) {
+	Transactions_List.StopRecord = Transactions_List.GridAddRowCount;
+}
+
+// Initialize aggregate
+Transactions.RowType = Config.RowTypeAggregateInit;
+Transactions_List.ResetAttributes();
+await Transactions_List.RenderRow();
+
+// Output data rows
+bool eof = (Transactions_List.Recordset == null); // DN
+while (Transactions_List.RecordCount < Transactions_List.StopRecord) { // Begin While
+	if (!Transactions_List.IsGridAdd && !eof) { // DN
+		eof = !await Transactions_List.Recordset.ReadAsync();
+	}
+	Transactions_List.RecordCount++;
+	if (Transactions_List.RecordCount >= Transactions_List.StartRecord) {
+		Transactions_List.RowCount++;
+
+		// Set up key count
+		Transactions_List.KeyCount = ConvertToInt(Transactions_List.RowIndex);
+
+		// Init row class and style
+		Transactions_List.ResetAttributes();
+		Transactions_List.CssClass = "";
+		if (Transactions_List.IsGridAdd) {
+		} else {
+			await Transactions_List.LoadRowValues(Transactions_List.Recordset); // Load row values
+		}
+		Transactions.RowType = Config.RowTypeView; // Render view
+
+		// Set up row id / data-rowindex
+		Transactions_List.RowAttrs.Add("data-rowindex", Convert.ToString(Transactions_List.RowCount));
+		Transactions_List.RowAttrs.Add("id", "r" + Convert.ToString(Transactions_List.RowCount) + "_Transactions");
+		Transactions_List.RowAttrs.Add("data-rowtype", Convert.ToString(Transactions_List.RowType));
+
+		// Render row
+		await Transactions_List.RenderRow();
+
+		// Render list options
+		await Transactions_List.RenderListOptions();
+	@:<tr @Html.Raw(Transactions.RowAttributes)>
+	@* Render list options (body, left) *@
+	@Transactions_List.ListOptions.RenderBody("left", Transactions_List.RowCount)
+	if (Transactions_List.TransactionID.Visible) { // Transactions_List.TransactionID.Visible (begin)
+		<td data-name="TransactionID" @Html.Raw(Transactions_List.TransactionID.CellAttributes)>
+<span id="el@(Transactions_List.RowCount)_Transactions_TransactionID">
+<span @Html.Raw(Transactions_List.TransactionID.ViewAttributes)>@Html.Raw(Transactions_List.TransactionID.GetViewValue())</span>
+</span>
+</td>
+	} @* Transactions_List.TransactionID.Visible (end) *@
+	if (Transactions_List.TransactionDate.Visible) { // Transactions_List.TransactionDate.Visible (begin)
+		<td data-name="TransactionDate" @Html.Raw(Transactions_List.TransactionDate.CellAttributes)>
+<span id="el@(Transactions_List.RowCount)_Transactions_TransactionDate">
+<span @Html.Raw(Transactions_List.TransactionDate.ViewAttributes)>@Html.Raw(Transactions_List.TransactionDate.GetViewValue())</span>
+</span>
+</td>
+	} @* Transactions_List.TransactionDate.Visible (end) *@
+	if (Transactions_List.AccountID.Visible) { // Transactions_List.AccountID.Visible (begin)
+		<td data-name="AccountID" @Html.Raw(Transactions_List.AccountID.CellAttributes)>
+<span id="el@(Transactions_List.RowCount)_Transactions_AccountID">
+<span @Html.Raw(Transactions_List.AccountID.ViewAttributes)>@Html.Raw(Transactions_List.AccountID.GetViewValue())</span>
+</span>
+</td>
+	} @* Transactions_List.AccountID.Visible (end) *@
+	if (Transactions_List.Debit.Visible) { // Transactions_List.Debit.Visible (begin)
+		<td data-name="Debit" @Html.Raw(Transactions_List.Debit.CellAttributes)>
+<span id="el@(Transactions_List.RowCount)_Transactions_Debit">
+<span @Html.Raw(Transactions_List.Debit.ViewAttributes)>@Html.Raw(Transactions_List.Debit.GetViewValue())</span>
+</span>
+</td>
+	} @* Transactions_List.Debit.Visible (end) *@
+	if (Transactions_List.Credit.Visible) { // Transactions_List.Credit.Visible (begin)
+		<td data-name="Credit" @Html.Raw(Transactions_List.Credit.CellAttributes)>
+<span id="el@(Transactions_List.RowCount)_Transactions_Credit">
+<span @Html.Raw(Transactions_List.Credit.ViewAttributes)>@Html.Raw(Transactions_List.Credit.GetViewValue())</span>
+</span>
+</td>
+	} @* Transactions_List.Credit.Visible (end) *@
+	@* Render list options (body, right) *@
+	@Transactions_List.ListOptions.RenderBody("right", Transactions_List.RowCount)
+	@:</tr>
+	} @* End if *@
+} @* End While *@
+} @* End Code *@
+</tbody>
+</table><!-- /.ew-table -->
+} @* End If TotalRecords > 0 *@
+</div><!-- /.ew-grid-middle-panel -->
+@if (Empty(Transactions.CurrentAction)) {
+<input type="hidden" name="action" id="action" value="">
+}
+</form><!-- /.ew-list-form -->
+@{ Transactions_List.CloseRecordset(); }
+@if (!Transactions_List.IsExport()) {
+<div class="card-footer ew-grid-lower-panel">
+@if (!Transactions_List.IsGridAdd) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Html.Raw(Transactions_List.Pager.Render())
+</form>
+}
+<div class="ew-list-other-options">
+@Transactions_List.OtherOptions.RenderBody("bottom")
+</div>
+<div class="clearfix"></div>
+</div>
+}
+</div><!-- /.ew-grid -->
+}
+@if (Transactions_List.TotalRecords <= 0 && Empty(Transactions.CurrentAction)) { // Show other options
+<div class="ew-list-other-options">
+@Transactions_List.OtherOptions.ForEach(opt => opt.ButtonClass = "").RenderBody()
+</div>
+<div class="clearfix"></div>
+}
+@Transactions_List.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+@if (!Transactions_List.IsExport()) {
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>
+}

@@ -1,0 +1,154 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Transactions_Delete.Page_Render();
+
+	// Check action result
+	if (Transactions_Delete.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fTransactionsdelete, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "delete";
+	fTransactionsdelete = currentForm = new ew.Form("fTransactionsdelete", "delete");
+	loadjs.done("fTransactionsdelete");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@Transactions_Delete.ShowPageHeader()
+@Transactions_Delete.ShowMessages()
+<form name="fTransactionsdelete" id="fTransactionsdelete" class="form-inline ew-form ew-delete-form" action="@AppPath(CurrentPageName())" method="post">
+@if (Transactions_Delete.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="delete">
+@foreach (string key in Transactions_Delete.RecordKeys) {
+<input type="hidden" name="key_m[]" value="@key">
+}
+<div class="card ew-card ew-grid">
+<div class="@ResponsiveTableClass() card-body ew-grid-middle-panel">
+<table class="table ew-table">
+	<thead>
+	<tr class="ew-table-header">
+@if (Transactions_Delete.TransactionID.Visible) { // Transactions_Delete.TransactionID.Visible (begin)
+		<th class="@Html.Raw(Transactions_Delete.TransactionID.HeaderCellClass)"><span id="elh_Transactions_TransactionID" class="Transactions_TransactionID">@Html.Raw(Transactions_Delete.TransactionID.Caption)</span></th>
+} @* Transactions_Delete.TransactionID.Visible (end) *@
+@if (Transactions_Delete.TransactionDate.Visible) { // Transactions_Delete.TransactionDate.Visible (begin)
+		<th class="@Html.Raw(Transactions_Delete.TransactionDate.HeaderCellClass)"><span id="elh_Transactions_TransactionDate" class="Transactions_TransactionDate">@Html.Raw(Transactions_Delete.TransactionDate.Caption)</span></th>
+} @* Transactions_Delete.TransactionDate.Visible (end) *@
+@if (Transactions_Delete.AccountID.Visible) { // Transactions_Delete.AccountID.Visible (begin)
+		<th class="@Html.Raw(Transactions_Delete.AccountID.HeaderCellClass)"><span id="elh_Transactions_AccountID" class="Transactions_AccountID">@Html.Raw(Transactions_Delete.AccountID.Caption)</span></th>
+} @* Transactions_Delete.AccountID.Visible (end) *@
+@if (Transactions_Delete.Debit.Visible) { // Transactions_Delete.Debit.Visible (begin)
+		<th class="@Html.Raw(Transactions_Delete.Debit.HeaderCellClass)"><span id="elh_Transactions_Debit" class="Transactions_Debit">@Html.Raw(Transactions_Delete.Debit.Caption)</span></th>
+} @* Transactions_Delete.Debit.Visible (end) *@
+@if (Transactions_Delete.Credit.Visible) { // Transactions_Delete.Credit.Visible (begin)
+		<th class="@Html.Raw(Transactions_Delete.Credit.HeaderCellClass)"><span id="elh_Transactions_Credit" class="Transactions_Credit">@Html.Raw(Transactions_Delete.Credit.Caption)</span></th>
+} @* Transactions_Delete.Credit.Visible (end) *@
+	</tr>
+	</thead>
+	<tbody>
+@{ Transactions_Delete.RecordCount = 0; }
+@while (Transactions_Delete.Recordset != null && await Transactions_Delete.Recordset.ReadAsync()) { // DN
+	Transactions_Delete.RecordCount++;
+	Transactions_Delete.RowCount++;
+
+	// Set row properties
+	Transactions_Delete.ResetAttributes();
+	Transactions_Delete.RowType = Config.RowTypeView; // View
+
+	// Get the field contents
+	await Transactions_Delete.LoadRowValues(Transactions_Delete.Recordset);
+
+	// Render row
+	await Transactions_Delete.RenderRow();
+	<tr @Html.Raw(Transactions.RowAttributes)>
+@if (Transactions_Delete.TransactionID.Visible) { // Transactions_Delete.TransactionID.Visible (begin)
+		<td @Html.Raw(Transactions_Delete.TransactionID.CellAttributes)>
+<span id="el@(Transactions_Delete.RowCount)_Transactions_TransactionID" class="Transactions_TransactionID">
+<span @Html.Raw(Transactions_Delete.TransactionID.ViewAttributes)>@Html.Raw(Transactions_Delete.TransactionID.GetViewValue())</span>
+</span>
+</td>
+} @* Transactions_Delete.TransactionID.Visible (end) *@
+@if (Transactions_Delete.TransactionDate.Visible) { // Transactions_Delete.TransactionDate.Visible (begin)
+		<td @Html.Raw(Transactions_Delete.TransactionDate.CellAttributes)>
+<span id="el@(Transactions_Delete.RowCount)_Transactions_TransactionDate" class="Transactions_TransactionDate">
+<span @Html.Raw(Transactions_Delete.TransactionDate.ViewAttributes)>@Html.Raw(Transactions_Delete.TransactionDate.GetViewValue())</span>
+</span>
+</td>
+} @* Transactions_Delete.TransactionDate.Visible (end) *@
+@if (Transactions_Delete.AccountID.Visible) { // Transactions_Delete.AccountID.Visible (begin)
+		<td @Html.Raw(Transactions_Delete.AccountID.CellAttributes)>
+<span id="el@(Transactions_Delete.RowCount)_Transactions_AccountID" class="Transactions_AccountID">
+<span @Html.Raw(Transactions_Delete.AccountID.ViewAttributes)>@Html.Raw(Transactions_Delete.AccountID.GetViewValue())</span>
+</span>
+</td>
+} @* Transactions_Delete.AccountID.Visible (end) *@
+@if (Transactions_Delete.Debit.Visible) { // Transactions_Delete.Debit.Visible (begin)
+		<td @Html.Raw(Transactions_Delete.Debit.CellAttributes)>
+<span id="el@(Transactions_Delete.RowCount)_Transactions_Debit" class="Transactions_Debit">
+<span @Html.Raw(Transactions_Delete.Debit.ViewAttributes)>@Html.Raw(Transactions_Delete.Debit.GetViewValue())</span>
+</span>
+</td>
+} @* Transactions_Delete.Debit.Visible (end) *@
+@if (Transactions_Delete.Credit.Visible) { // Transactions_Delete.Credit.Visible (begin)
+		<td @Html.Raw(Transactions_Delete.Credit.CellAttributes)>
+<span id="el@(Transactions_Delete.RowCount)_Transactions_Credit" class="Transactions_Credit">
+<span @Html.Raw(Transactions_Delete.Credit.ViewAttributes)>@Html.Raw(Transactions_Delete.Credit.GetViewValue())</span>
+</span>
+</td>
+} @* Transactions_Delete.Credit.Visible (end) *@
+	</tr>
+}
+@{ Transactions_Delete.CloseRecordset(); }
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("DeleteBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(Transactions_Delete.ReturnUrl)">@Language.Phrase("CancelBtn")</button>
+</div>
+</form>
+@Transactions_Delete.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

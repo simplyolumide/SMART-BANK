@@ -1,0 +1,343 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Accounts_Edit.Page_Render();
+
+	// Check action result
+	if (Accounts_Edit.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fAccountsedit, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "edit";
+	fAccountsedit = currentForm = new ew.Form("fAccountsedit", "edit");
+
+	// Validate form
+	fAccountsedit.validate = function() {
+		if (!this.validateRequired)
+			return true; // Ignore validation
+		var $ = jQuery, fobj = this.getForm(), $fobj = $(fobj);
+		if ($fobj.find("#confirm").val() == "confirm")
+			return true;
+		var elm, felm, uelm, addcnt = 0;
+		var $k = $fobj.find("#" + this.formKeyCountName); // Get key_count
+		var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+		var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+		var gridinsert = ["insert", "gridinsert"].includes($fobj.find("#action").val()) && $k[0];
+		for (var i = startcnt; i <= rowcnt; i++) {
+			var infix = ($k[0]) ? String(i) : "";
+			$fobj.data("rowindex", infix);
+			@if (Accounts_Edit.AccountID.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountID");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.AccountID.RequiredErrorMessage).Replace("%s", Accounts_Edit.AccountID.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.AccountNumber.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountNumber");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.AccountNumber.RequiredErrorMessage).Replace("%s", Accounts_Edit.AccountNumber.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.FirstName.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_FirstName");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.FirstName.RequiredErrorMessage).Replace("%s", Accounts_Edit.FirstName.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.OtherNames.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_OtherNames");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.OtherNames.RequiredErrorMessage).Replace("%s", Accounts_Edit.OtherNames.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.LastName.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_LastName");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.LastName.RequiredErrorMessage).Replace("%s", Accounts_Edit.LastName.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.AccountTypeID.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountTypeID");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.AccountTypeID.RequiredErrorMessage).Replace("%s", Accounts_Edit.AccountTypeID.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.BankVerificationNumber.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_BankVerificationNumber");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.BankVerificationNumber.RequiredErrorMessage).Replace("%s", Accounts_Edit.BankVerificationNumber.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit.DateOfBirth.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_DateOfBirth");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.DateOfBirth.RequiredErrorMessage).Replace("%s", Accounts_Edit.DateOfBirth.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_DateOfBirth");
+				if (elm && !ew.checkDateDef(elm.value))
+					return this.onError(elm, "@(JsEncode(Accounts_Edit.DateOfBirth.ErrorMessage))");
+			@if (Accounts_Edit.Photo.Required) {
+				<text>
+				felm = this.getElements("x" + infix + "_Photo");
+				elm = this.getElements("fn_x" + infix + "_Photo");
+				if (felm && elm && !ew.hasValue(elm))
+					return this.onError(felm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit.Photo.RequiredErrorMessage).Replace("%s", Accounts_Edit.Photo.Caption)))");
+				</text>
+			}
+			@if (Accounts_Edit._Email.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "__Email");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Accounts_Edit._Email.RequiredErrorMessage).Replace("%s", Accounts_Edit._Email.Caption)))");
+				</text>
+			}
+
+				// Call Form_CustomValidate event
+				if (!this.Form_CustomValidate(fobj))
+					return false;
+		}
+
+		// Process detail forms
+		var dfs = $fobj.find("input[name='detailpage']").get();
+		for (var i = 0; i < dfs.length; i++) {
+			var df = dfs[i], val = df.value;
+			if (val && ew.forms[val])
+				if (!ew.forms[val].validate())
+					return false;
+		}
+		return true;
+	}
+
+	// Form_CustomValidate
+	fAccountsedit.Form_CustomValidate = function(fobj) { // DO NOT CHANGE THIS LINE!
+
+		// Your custom validation code here, return false if invalid.
+		return true;
+	}
+
+	// Use JavaScript validation or not
+	fAccountsedit.validateRequired = @(Config.ClientValidate ? "true" : "false");
+
+	// Dynamic selection lists
+	fAccountsedit.lists["x_AccountTypeID"] = @Html.Raw(Accounts_Edit.AccountTypeID.Lookup.ToClientList(Accounts_Edit));
+	fAccountsedit.lists["x_AccountTypeID"].options = @Html.Raw(ConvertToJson(Accounts_Edit.AccountTypeID.LookupOptions));
+	loadjs.done("fAccountsedit");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@Accounts_Edit.ShowPageHeader()
+@Accounts_Edit.ShowMessages()
+@if (!Accounts_Edit.IsModal) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Accounts_Edit.Pager.Render()
+<div class="clearfix"></div>
+</form>
+}
+<form name="fAccountsedit" id="fAccountsedit" class="@(Accounts_Edit.FormClassName)" action="@AppPath(CurrentPageName())" method="post">
+@if (Accounts_Edit.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="update">
+@if (Accounts_Edit.IsModal) {
+<input type="hidden" name="modal" value="@ConvertToInt(Accounts_Edit.IsModal)">
+}
+<div class="ew-edit-div"><!-- page* -->
+@if (Accounts_Edit.AccountID.Visible) { // Accounts_Edit.AccountID.Visible (begin)
+	<div id="r_AccountID" class="form-group row">
+		<label id="elh_Accounts_AccountID" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.AccountID.Caption)@Html.Raw(Accounts_Edit.AccountID.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.AccountID.CellAttributes)>
+<span id="el_Accounts_AccountID">
+<span @Html.Raw(Accounts_Edit.AccountID.ViewAttributes)><input type="text" readonly class="form-control-plaintext" value="@Html.Raw(RemoveHtml(Convert.ToString(Accounts_Edit.AccountID.EditValue)))"></span>
+</span>
+<input type="hidden" data-table="Accounts" data-field="x_AccountID" name="x_AccountID" id="x_AccountID" value="@Html.Raw(HtmlEncode(Accounts_Edit.AccountID.CurrentValue))">
+@Html.Raw(Accounts_Edit.AccountID.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.AccountID.Visible (end) *@
+@if (Accounts_Edit.AccountNumber.Visible) { // Accounts_Edit.AccountNumber.Visible (begin)
+	<div id="r_AccountNumber" class="form-group row">
+		<label id="elh_Accounts_AccountNumber" for="x_AccountNumber" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.AccountNumber.Caption)@Html.Raw(Accounts_Edit.AccountNumber.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.AccountNumber.CellAttributes)>
+<span id="el_Accounts_AccountNumber">
+<input type="text" data-table="Accounts" data-field="x_AccountNumber" name="x_AccountNumber" id="x_AccountNumber" size="30" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.AccountNumber.PlaceHolder))" value="@(Accounts_Edit.AccountNumber.EditValue)" @Html.Raw(Accounts_Edit.AccountNumber.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.AccountNumber.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.AccountNumber.Visible (end) *@
+@if (Accounts_Edit.FirstName.Visible) { // Accounts_Edit.FirstName.Visible (begin)
+	<div id="r_FirstName" class="form-group row">
+		<label id="elh_Accounts_FirstName" for="x_FirstName" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.FirstName.Caption)@Html.Raw(Accounts_Edit.FirstName.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.FirstName.CellAttributes)>
+<span id="el_Accounts_FirstName">
+<input type="text" data-table="Accounts" data-field="x_FirstName" name="x_FirstName" id="x_FirstName" size="30" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.FirstName.PlaceHolder))" value="@(Accounts_Edit.FirstName.EditValue)" @Html.Raw(Accounts_Edit.FirstName.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.FirstName.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.FirstName.Visible (end) *@
+@if (Accounts_Edit.OtherNames.Visible) { // Accounts_Edit.OtherNames.Visible (begin)
+	<div id="r_OtherNames" class="form-group row">
+		<label id="elh_Accounts_OtherNames" for="x_OtherNames" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.OtherNames.Caption)@Html.Raw(Accounts_Edit.OtherNames.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.OtherNames.CellAttributes)>
+<span id="el_Accounts_OtherNames">
+<input type="text" data-table="Accounts" data-field="x_OtherNames" name="x_OtherNames" id="x_OtherNames" size="30" maxlength="100" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.OtherNames.PlaceHolder))" value="@(Accounts_Edit.OtherNames.EditValue)" @Html.Raw(Accounts_Edit.OtherNames.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.OtherNames.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.OtherNames.Visible (end) *@
+@if (Accounts_Edit.LastName.Visible) { // Accounts_Edit.LastName.Visible (begin)
+	<div id="r_LastName" class="form-group row">
+		<label id="elh_Accounts_LastName" for="x_LastName" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.LastName.Caption)@Html.Raw(Accounts_Edit.LastName.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.LastName.CellAttributes)>
+<span id="el_Accounts_LastName">
+<input type="text" data-table="Accounts" data-field="x_LastName" name="x_LastName" id="x_LastName" size="30" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.LastName.PlaceHolder))" value="@(Accounts_Edit.LastName.EditValue)" @Html.Raw(Accounts_Edit.LastName.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.LastName.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.LastName.Visible (end) *@
+@if (Accounts_Edit.AccountTypeID.Visible) { // Accounts_Edit.AccountTypeID.Visible (begin)
+	<div id="r_AccountTypeID" class="form-group row">
+		<label id="elh_Accounts_AccountTypeID" for="x_AccountTypeID" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.AccountTypeID.Caption)@Html.Raw(Accounts_Edit.AccountTypeID.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.AccountTypeID.CellAttributes)>
+<span id="el_Accounts_AccountTypeID">
+<div class="btn-group ew-dropdown-list" role="group">
+	<div class="btn-group" role="group">
+		<button type="button" class="btn form-control dropdown-toggle ew-dropdown-toggle" aria-haspopup="true" aria-expanded="false"@Html.Raw(Accounts_Edit.AccountTypeID.ReadOnly ? " readonly" : " data-toggle=\"dropdown\"")>@(Accounts_Edit.AccountTypeID.ViewValue)</button>
+		<div id="dsl_x_AccountTypeID" data-repeatcolumn="1" class="dropdown-menu">
+			<div class="ew-items" style="overflow-x: hidden;">
+@(Accounts_Edit.AccountTypeID.RadioButtonListHtml(true, "x_AccountTypeID"))
+			</div><!-- /.ew-items -->
+		</div><!-- /.dropdown-menu -->
+		<div id="tp_x_AccountTypeID" class="ew-template"><input type="radio" class="custom-control-input" data-table="Accounts" data-field="x_AccountTypeID" data-value-separator="@(Accounts_Edit.AccountTypeID.DisplayValueSeparatorAttribute)" name="x_AccountTypeID" id="x_AccountTypeID" value="{value}" @Html.Raw(Accounts_Edit.AccountTypeID.EditAttributes)></div>
+	</div><!-- /.btn-group -->
+	@if (!Accounts_Edit.AccountTypeID.ReadOnly) {
+	<button type="button" class="btn btn-default ew-dropdown-clear" disabled>
+		<i class="fas fa-times ew-icon"></i>
+	</button>
+	}
+</div><!-- /.ew-dropdown-list -->
+@Html.Raw(Accounts_Edit.AccountTypeID.Lookup.GetParamTag(Accounts_Edit, "p_x_AccountTypeID"))
+</span>
+@Html.Raw(Accounts_Edit.AccountTypeID.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.AccountTypeID.Visible (end) *@
+@if (Accounts_Edit.BankVerificationNumber.Visible) { // Accounts_Edit.BankVerificationNumber.Visible (begin)
+	<div id="r_BankVerificationNumber" class="form-group row">
+		<label id="elh_Accounts_BankVerificationNumber" for="x_BankVerificationNumber" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.BankVerificationNumber.Caption)@Html.Raw(Accounts_Edit.BankVerificationNumber.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.BankVerificationNumber.CellAttributes)>
+<span id="el_Accounts_BankVerificationNumber">
+<input type="text" data-table="Accounts" data-field="x_BankVerificationNumber" name="x_BankVerificationNumber" id="x_BankVerificationNumber" size="30" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.BankVerificationNumber.PlaceHolder))" value="@(Accounts_Edit.BankVerificationNumber.EditValue)" @Html.Raw(Accounts_Edit.BankVerificationNumber.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.BankVerificationNumber.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.BankVerificationNumber.Visible (end) *@
+@if (Accounts_Edit.DateOfBirth.Visible) { // Accounts_Edit.DateOfBirth.Visible (begin)
+	<div id="r_DateOfBirth" class="form-group row">
+		<label id="elh_Accounts_DateOfBirth" for="x_DateOfBirth" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.DateOfBirth.Caption)@Html.Raw(Accounts_Edit.DateOfBirth.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.DateOfBirth.CellAttributes)>
+<span id="el_Accounts_DateOfBirth">
+<input type="text" data-table="Accounts" data-field="x_DateOfBirth" name="x_DateOfBirth" id="x_DateOfBirth" size="50" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit.DateOfBirth.PlaceHolder))" value="@(Accounts_Edit.DateOfBirth.EditValue)" @Html.Raw(Accounts_Edit.DateOfBirth.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit.DateOfBirth.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.DateOfBirth.Visible (end) *@
+@if (Accounts_Edit.Photo.Visible) { // Accounts_Edit.Photo.Visible (begin)
+	<div id="r_Photo" class="form-group row">
+		<label id="elh_Accounts_Photo" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit.Photo.Caption)@Html.Raw(Accounts_Edit.Photo.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit.Photo.CellAttributes)>
+<span id="el_Accounts_Photo">
+<div id="fd_x_Photo">
+<div class="input-group">
+	<div class="custom-file">
+		<input type="file" class="custom-file-input" title="@(Accounts_Edit.Photo.Title)" data-table="Accounts" data-field="x_Photo" name="x_Photo" id="x_Photo" lang="@(CurrentLanguageID)" @Html.Raw(Accounts_Edit.Photo.EditAttributes)@((Accounts_Edit.Photo.ReadOnly || Accounts_Edit.Photo.Disabled) ? " disabled" : "")>
+		<label class="custom-file-label ew-file-label" for="x_Photo">@Html.Raw(Language.Phrase("ChooseFile"))</label>
+	</div>
+</div>
+<input type="hidden" name="fn_x_Photo" id= "fn_x_Photo" value="@(Accounts_Edit.Photo.Upload.FileName)">
+<input type="hidden" name="fa_x_Photo" id= "fa_x_Photo" value="@(Post("fa_x_Photo") == "0" ? "0" : "1")">
+<input type="hidden" name="fs_x_Photo" id= "fs_x_Photo" value="0">
+<input type="hidden" name="fx_x_Photo" id= "fx_x_Photo" value="@(Accounts_Edit.Photo.UploadAllowedFileExtensions)">
+<input type="hidden" name="fm_x_Photo" id= "fm_x_Photo" value="@(Accounts_Edit.Photo.UploadMaxFileSize)">
+</div>
+<table id="ft_x_Photo" class="table table-sm float-left ew-upload-table"><tbody class="files"></tbody></table>
+</span>
+@Html.Raw(Accounts_Edit.Photo.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit.Photo.Visible (end) *@
+@if (Accounts_Edit._Email.Visible) { // Accounts_Edit._Email.Visible (begin)
+	<div id="r__Email" class="form-group row">
+		<label id="elh_Accounts__Email" for="x__Email" class="@(Accounts_Edit.LeftColumnClass)">@Html.Raw(Accounts_Edit._Email.Caption)@Html.Raw(Accounts_Edit._Email.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Accounts_Edit.RightColumnClass)"><div @Html.Raw(Accounts_Edit._Email.CellAttributes)>
+<span id="el_Accounts__Email">
+<input type="text" data-table="Accounts" data-field="x__Email" name="x__Email" id="x__Email" size="30" maxlength="255" placeholder="@Html.Raw(HtmlEncode(Accounts_Edit._Email.PlaceHolder))" value="@(Accounts_Edit._Email.EditValue)" @Html.Raw(Accounts_Edit._Email.EditAttributes)>
+</span>
+@Html.Raw(Accounts_Edit._Email.CustomMsg)</div></div>
+	</div>
+} @* Accounts_Edit._Email.Visible (end) *@
+</div><!-- /page* -->
+@{ Accounts_Edit.CloseRecordset(); }
+@if (!Accounts_Edit.IsModal) {
+@:<div class="form-group row"><!-- buttons .form-group -->
+	@:<div class="@(Accounts_Edit.OffsetColumnClass)"><!-- buttons offset -->
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("SaveBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(Accounts_Edit.ReturnUrl)">@Html.Raw(Language.Phrase("CancelBtn"))</button>
+	@:</div><!-- /buttons offset -->
+@:</div><!-- /buttons .form-group -->
+}
+@if (!Accounts_Edit.IsModal) {
+<div><!-- DN -->
+@Accounts_Edit.Pager.Render()
+</div>
+<div class="clearfix"></div>
+}
+</form>
+@Accounts_Edit.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

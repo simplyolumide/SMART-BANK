@@ -1,0 +1,298 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	AccountTypes_List.Page_Render();
+
+	// Check action result
+	if (AccountTypes_List.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+@if (!AccountTypes_List.IsExport()) {
+<script>
+var fAccountTypeslist, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "list";
+	fAccountTypeslist = currentForm = new ew.Form("fAccountTypeslist", "list");
+	fAccountTypeslist.formKeyCountName = '@(AccountTypes_List.FormKeyCountName)';
+	loadjs.done("fAccountTypeslist");
+});
+var fAccountTypeslistsrch;
+loadjs.ready("head", function() {
+
+	// Form object for search
+	fAccountTypeslistsrch = currentSearchForm = new ew.Form("fAccountTypeslistsrch");
+
+	// Dynamic selection lists
+	// Filters
+
+	fAccountTypeslistsrch.filterList = @Html.Raw(await AccountTypes_List.GetFilterList());
+	loadjs.done("fAccountTypeslistsrch");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+}
+@if (!AccountTypes_List.IsExport()) {
+<div class="btn-toolbar ew-toolbar">
+@if (AccountTypes_List.TotalRecords > 0 && AccountTypes_List.ExportOptions.Visible) {
+	AccountTypes_List.ExportOptions.Render("body");
+}
+@if (AccountTypes_List.ImportOptions.Visible) {
+	AccountTypes_List.ImportOptions.Render("body");
+}
+@if (AccountTypes_List.SearchOptions.Visible) {
+	AccountTypes_List.SearchOptions.Render("body");
+}
+@if (AccountTypes_List.FilterOptions.Visible) {
+	AccountTypes_List.FilterOptions.Render("body");
+}
+<div class="clearfix"></div>
+</div>
+}
+@{ AccountTypes_List.RenderOtherOptions(); }
+@if (!AccountTypes_List.IsExport() && Empty(AccountTypes.CurrentAction)) { @* Show search form (begin) *@
+<form name="fAccountTypeslistsrch" id="fAccountTypeslistsrch" class="form-inline ew-form ew-ext-search-form" action="@AppPath(CurrentPageName())">
+<div id="fAccountTypeslistsrch-search-panel" class="@(AccountTypes_List.SearchPanelClass)"><!-- .ew-search-panel -->
+<input type="hidden" name="cmd" value="search">
+	<div class="ew-extended-search">
+<div id="xsr_@(AccountTypes_List.SearchRowCount + 1)" class="ew-row d-sm-flex">
+	<div class="ew-quick-search input-group">
+		<input type="text" name="@(Config.TableBasicSearch)" id="@(Config.TableBasicSearch)" class="form-control" value="@Html.Raw(HtmlEncode(AccountTypes_List.BasicSearch.SessionKeyword))" placeholder="@(HtmlEncode(Language.Phrase("Search")))">
+		<input type="hidden" name="@(Config.TableBasicSearchType)" id="@(Config.TableBasicSearchType)" value="@(HtmlEncode(AccountTypes_List.BasicSearch.SessionType))">
+		<div class="input-group-append">
+			<button class="btn btn-primary" name="btn-submit" id="btn-submit" type="submit">@Html.Raw(Language.Phrase("SearchBtn"))</button>
+			<button type="button" data-toggle="dropdown" class="btn btn-primary dropdown-toggle dropdown-toggle-split" aria-haspopup="true" aria-expanded="false"><span id="searchtype">@Html.Raw(AccountTypes_List.BasicSearch.TypeNameShort)</span></button>
+			<div class="dropdown-menu dropdown-menu-right">
+				<a class="dropdown-item@((AccountTypes_List.BasicSearch.SessionType == "") ? " active" : "")" href="#" onclick="return ew.setSearchType(this);">@Html.Raw(Language.Phrase("QuickSearchAuto"))</a>
+				<a class="dropdown-item@((AccountTypes_List.BasicSearch.SessionType == "=") ? " active" : "")" href="#" onclick="return ew.setSearchType(this, '=');">@Html.Raw(Language.Phrase("QuickSearchExact"))</a>
+				<a class="dropdown-item@((AccountTypes_List.BasicSearch.SessionType == "AND") ? " active" : "")" href="#" onclick="return ew.setSearchType(this, 'AND');">@Html.Raw(Language.Phrase("QuickSearchAll"))</a>
+				<a class="dropdown-item@((AccountTypes_List.BasicSearch.SessionType == "OR") ? " active" : "")" href="#" onclick="return ew.setSearchType(this, 'OR');">@Html.Raw(Language.Phrase("QuickSearchAny"))</a>
+			</div>
+		</div>
+	</div>
+</div>
+	</div><!-- /.ew-extended-search -->
+</div><!-- /.ew-search-panel -->
+</form>
+} @* Show search form (end) *@
+@AccountTypes_List.ShowPageHeader()
+@AccountTypes_List.ShowMessages()
+@if (AccountTypes_List.TotalRecords > 0 || !Empty(AccountTypes.CurrentAction)) {
+<div class="card ew-card ew-grid@(AccountTypes_List.IsAddOrEdit ? " ew-grid-add-edit" : "") AccountTypes">
+@if (!AccountTypes_List.IsExport()) {
+<div class="card-header ew-grid-upper-panel">
+@if (!AccountTypes_List.IsGridAdd) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Html.Raw(AccountTypes_List.Pager.Render())
+</form>
+}
+<div class="ew-list-other-options">
+@AccountTypes_List.OtherOptions.RenderBody()
+</div>
+<div class="clearfix"></div>
+</div>
+}
+<form name="fAccountTypeslist" id="fAccountTypeslist" class="form-inline ew-form ew-list-form" action="@AppPath(CurrentPageName())" method="post">
+@if (AccountTypes_List.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<div id="gmp_AccountTypes" class="@ResponsiveTableClass() card-body ew-grid-middle-panel">
+@if (AccountTypes_List.TotalRecords > 0 || AccountTypes_List.IsGridEdit) {
+<table id="tbl_AccountTypeslist" class="table ew-table"><!-- .ew-table -->
+<thead>
+	<tr class="ew-table-header">
+@{
+
+	// Header row
+	AccountTypes.RowType = Config.RowTypeHeader;
+
+	// Render list options
+	await AccountTypes_List.RenderListOptions();
+
+	// Render list options (header, left)
+	AccountTypes_List.ListOptions.Render("header", "left");
+}
+@if (AccountTypes_List.AccountTypeID.Visible) { // AccountTypes_List.AccountTypeID.Visible (begin)
+	if (AccountTypes_List.SortUrl(AccountTypes_List.AccountTypeID) == "") {
+		<th data-name="AccountTypeID" class="@(AccountTypes_List.AccountTypeID.HeaderCellClass)"><div id="elh_AccountTypes_AccountTypeID" class="AccountTypes_AccountTypeID"><div class="ew-table-header-caption">@Html.Raw(AccountTypes_List.AccountTypeID.Caption)</div></div></th>
+	} else {
+		<th data-name="AccountTypeID" class="@(AccountTypes_List.AccountTypeID.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(AccountTypes_List.SortUrl(AccountTypes_List.AccountTypeID))', 1);"><div id="elh_AccountTypes_AccountTypeID" class="AccountTypes_AccountTypeID">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(AccountTypes_List.AccountTypeID.Caption)</span><span class="ew-table-header-sort">@if (AccountTypes_List.AccountTypeID.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (AccountTypes_List.AccountTypeID.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* AccountTypes_List.AccountTypeID.Visible (end) *@
+@if (AccountTypes_List.AccountTypeName.Visible) { // AccountTypes_List.AccountTypeName.Visible (begin)
+	if (AccountTypes_List.SortUrl(AccountTypes_List.AccountTypeName) == "") {
+		<th data-name="AccountTypeName" class="@(AccountTypes_List.AccountTypeName.HeaderCellClass)"><div id="elh_AccountTypes_AccountTypeName" class="AccountTypes_AccountTypeName"><div class="ew-table-header-caption">@Html.Raw(AccountTypes_List.AccountTypeName.Caption)</div></div></th>
+	} else {
+		<th data-name="AccountTypeName" class="@(AccountTypes_List.AccountTypeName.HeaderCellClass)"><div class="ew-pointer" onclick="ew.sort(event, '@Html.Raw(AccountTypes_List.SortUrl(AccountTypes_List.AccountTypeName))', 1);"><div id="elh_AccountTypes_AccountTypeName" class="AccountTypes_AccountTypeName">
+			<div class="ew-table-header-btn"><span class="ew-table-header-caption">@Html.Raw(AccountTypes_List.AccountTypeName.Caption)@Html.Raw(Language.Phrase("SrchLegend"))</span><span class="ew-table-header-sort">@if (AccountTypes_List.AccountTypeName.Sort == "ASC") {<i class="fas fa-sort-up"></i>} else if (AccountTypes_List.AccountTypeName.Sort == "DESC") {<i class="fas fa-sort-down"></i>}</span></div>
+		</div></div></th>
+	}
+} @* AccountTypes_List.AccountTypeName.Visible (end) *@
+@{
+
+	// Render list options (header, right)
+	AccountTypes_List.ListOptions.Render("header", "right");
+}
+	</tr>
+</thead>
+<tbody>
+@{ // Begin Code
+if (AccountTypes_List.ExportAll && AccountTypes_List.IsExport()) {
+	AccountTypes_List.StopRecord = AccountTypes_List.TotalRecords;
+} else {
+
+	// Set the last record to display
+	if (AccountTypes_List.TotalRecords > AccountTypes_List.StartRecord + AccountTypes_List.DisplayRecords - 1) {
+		AccountTypes_List.StopRecord = AccountTypes_List.StartRecord + AccountTypes_List.DisplayRecords - 1;
+	} else {
+		AccountTypes_List.StopRecord = AccountTypes_List.TotalRecords;
+	}
+}
+if (AccountTypes_List.Recordset != null && AccountTypes_List.Recordset.HasRows) {
+	if (!AccountTypes_List.Connection.SelectOffset) { // DN
+		for (int i = 1; i <= AccountTypes_List.StartRecord - 1; i++) { // Move to first record
+			if (await AccountTypes_List.Recordset.ReadAsync()) {
+				AccountTypes_List.RecordCount++;
+			}
+		}
+	} else {
+		AccountTypes_List.RecordCount = AccountTypes_List.StartRecord - 1;
+	}
+} else if (!AccountTypes_List.AllowAddDeleteRow && AccountTypes_List.StopRecord == 0) {
+	AccountTypes_List.StopRecord = AccountTypes_List.GridAddRowCount;
+}
+
+// Initialize aggregate
+AccountTypes.RowType = Config.RowTypeAggregateInit;
+AccountTypes_List.ResetAttributes();
+await AccountTypes_List.RenderRow();
+
+// Output data rows
+bool eof = (AccountTypes_List.Recordset == null); // DN
+while (AccountTypes_List.RecordCount < AccountTypes_List.StopRecord) { // Begin While
+	if (!AccountTypes_List.IsGridAdd && !eof) { // DN
+		eof = !await AccountTypes_List.Recordset.ReadAsync();
+	}
+	AccountTypes_List.RecordCount++;
+	if (AccountTypes_List.RecordCount >= AccountTypes_List.StartRecord) {
+		AccountTypes_List.RowCount++;
+
+		// Set up key count
+		AccountTypes_List.KeyCount = ConvertToInt(AccountTypes_List.RowIndex);
+
+		// Init row class and style
+		AccountTypes_List.ResetAttributes();
+		AccountTypes_List.CssClass = "";
+		if (AccountTypes_List.IsGridAdd) {
+		} else {
+			await AccountTypes_List.LoadRowValues(AccountTypes_List.Recordset); // Load row values
+		}
+		AccountTypes.RowType = Config.RowTypeView; // Render view
+
+		// Set up row id / data-rowindex
+		AccountTypes_List.RowAttrs.Add("data-rowindex", Convert.ToString(AccountTypes_List.RowCount));
+		AccountTypes_List.RowAttrs.Add("id", "r" + Convert.ToString(AccountTypes_List.RowCount) + "_AccountTypes");
+		AccountTypes_List.RowAttrs.Add("data-rowtype", Convert.ToString(AccountTypes_List.RowType));
+
+		// Render row
+		await AccountTypes_List.RenderRow();
+
+		// Render list options
+		await AccountTypes_List.RenderListOptions();
+	@:<tr @Html.Raw(AccountTypes.RowAttributes)>
+	@* Render list options (body, left) *@
+	@AccountTypes_List.ListOptions.RenderBody("left", AccountTypes_List.RowCount)
+	if (AccountTypes_List.AccountTypeID.Visible) { // AccountTypes_List.AccountTypeID.Visible (begin)
+		<td data-name="AccountTypeID" @Html.Raw(AccountTypes_List.AccountTypeID.CellAttributes)>
+<span id="el@(AccountTypes_List.RowCount)_AccountTypes_AccountTypeID">
+<span @Html.Raw(AccountTypes_List.AccountTypeID.ViewAttributes)>@Html.Raw(AccountTypes_List.AccountTypeID.GetViewValue())</span>
+</span>
+</td>
+	} @* AccountTypes_List.AccountTypeID.Visible (end) *@
+	if (AccountTypes_List.AccountTypeName.Visible) { // AccountTypes_List.AccountTypeName.Visible (begin)
+		<td data-name="AccountTypeName" @Html.Raw(AccountTypes_List.AccountTypeName.CellAttributes)>
+<span id="el@(AccountTypes_List.RowCount)_AccountTypes_AccountTypeName">
+<span @Html.Raw(AccountTypes_List.AccountTypeName.ViewAttributes)>@Html.Raw(AccountTypes_List.AccountTypeName.GetViewValue())</span>
+</span>
+</td>
+	} @* AccountTypes_List.AccountTypeName.Visible (end) *@
+	@* Render list options (body, right) *@
+	@AccountTypes_List.ListOptions.RenderBody("right", AccountTypes_List.RowCount)
+	@:</tr>
+	} @* End if *@
+} @* End While *@
+} @* End Code *@
+</tbody>
+</table><!-- /.ew-table -->
+} @* End If TotalRecords > 0 *@
+</div><!-- /.ew-grid-middle-panel -->
+@if (Empty(AccountTypes.CurrentAction)) {
+<input type="hidden" name="action" id="action" value="">
+}
+</form><!-- /.ew-list-form -->
+@{ AccountTypes_List.CloseRecordset(); }
+@if (!AccountTypes_List.IsExport()) {
+<div class="card-footer ew-grid-lower-panel">
+@if (!AccountTypes_List.IsGridAdd) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Html.Raw(AccountTypes_List.Pager.Render())
+</form>
+}
+<div class="ew-list-other-options">
+@AccountTypes_List.OtherOptions.RenderBody("bottom")
+</div>
+<div class="clearfix"></div>
+</div>
+}
+</div><!-- /.ew-grid -->
+}
+@if (AccountTypes_List.TotalRecords <= 0 && Empty(AccountTypes.CurrentAction)) { // Show other options
+<div class="ew-list-other-options">
+@AccountTypes_List.OtherOptions.ForEach(opt => opt.ButtonClass = "").RenderBody()
+</div>
+<div class="clearfix"></div>
+}
+@AccountTypes_List.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+@if (!AccountTypes_List.IsExport()) {
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>
+}

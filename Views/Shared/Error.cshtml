@@ -1,0 +1,29 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Check action result
+	if (_error.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<div class="error-page">
+	<h3><i class="fas fa-warning text-danger"></i> @Html.Raw(Language.Phrase("Oops"))</h3>
+	<div>@Html.Raw(_error.FailureMessage)</div>
+</div>
+@{ _error.ClearFailureMessage(); }
+@ShowDebugMessage()

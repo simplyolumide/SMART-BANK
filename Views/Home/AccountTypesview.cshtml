@@ -1,0 +1,117 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	AccountTypes_View.Page_Render();
+
+	// Check action result
+	if (AccountTypes_View.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+@if (!AccountTypes_View.IsExport()) {
+<script>
+var fAccountTypesview, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "view";
+	fAccountTypesview = currentForm = new ew.Form("fAccountTypesview", "view");
+	loadjs.done("fAccountTypesview");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+}
+@if (!AccountTypes_View.IsExport()) {
+<div class="btn-toolbar ew-toolbar">
+	@AccountTypes_View.ExportOptions.RenderBody()
+	@AccountTypes_View.OtherOptions.RenderBody()
+	<div class="clearfix"></div>
+</div>
+}
+@AccountTypes_View.ShowPageHeader()
+@AccountTypes_View.ShowMessages()
+@if (!AccountTypes_View.IsModal) {
+if (!AccountTypes_View.IsExport()) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@AccountTypes_View.Pager.Render()
+<div class="clearfix"></div>
+</form>
+}
+}
+<form name="fAccountTypesview" id="fAccountTypesview" class="form-inline ew-form ew-view-form" method="post">
+@if (AccountTypes_View.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="modal" value="@ConvertToInt(AccountTypes_View.IsModal)">
+<table class="table table-striped table-sm ew-view-table">
+@if (AccountTypes_View.AccountTypeID.Visible) { // AccountTypes_View.AccountTypeID.Visible (begin)
+	<tr id="r_AccountTypeID">
+		<td class="@(AccountTypes_View.TableLeftColumnClass)"><span id="elh_AccountTypes_AccountTypeID">@Html.Raw(AccountTypes_View.AccountTypeID.Caption)</span></td>
+		<td data-name="AccountTypeID" @Html.Raw(AccountTypes_View.AccountTypeID.CellAttributes)>
+<span id="el_AccountTypes_AccountTypeID">
+<span @Html.Raw(AccountTypes_View.AccountTypeID.ViewAttributes)>@Html.Raw(AccountTypes_View.AccountTypeID.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* AccountTypes_View.AccountTypeID.Visible (end) *@
+@if (AccountTypes_View.AccountTypeName.Visible) { // AccountTypes_View.AccountTypeName.Visible (begin)
+	<tr id="r_AccountTypeName">
+		<td class="@(AccountTypes_View.TableLeftColumnClass)"><span id="elh_AccountTypes_AccountTypeName">@Html.Raw(AccountTypes_View.AccountTypeName.Caption)</span></td>
+		<td data-name="AccountTypeName" @Html.Raw(AccountTypes_View.AccountTypeName.CellAttributes)>
+<span id="el_AccountTypes_AccountTypeName">
+<span @Html.Raw(AccountTypes_View.AccountTypeName.ViewAttributes)>@Html.Raw(AccountTypes_View.AccountTypeName.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* AccountTypes_View.AccountTypeName.Visible (end) *@
+</table>
+@if (!AccountTypes_View.IsModal) {
+if (!AccountTypes_View.IsExport()) {
+<div><!-- DN -->
+@AccountTypes_View.Pager.Render()
+</div>
+<div class="clearfix"></div>
+}
+}
+@{ AccountTypes_View.CloseRecordset(); }
+</form>
+@AccountTypes_View.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+@if (!AccountTypes_View.IsExport()) {
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>
+}

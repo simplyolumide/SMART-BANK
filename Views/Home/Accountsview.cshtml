@@ -1,0 +1,197 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Accounts_View.Page_Render();
+
+	// Check action result
+	if (Accounts_View.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+@if (!Accounts_View.IsExport()) {
+<script>
+var fAccountsview, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "view";
+	fAccountsview = currentForm = new ew.Form("fAccountsview", "view");
+	loadjs.done("fAccountsview");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+}
+@if (!Accounts_View.IsExport()) {
+<div class="btn-toolbar ew-toolbar">
+	@Accounts_View.ExportOptions.RenderBody()
+	@Accounts_View.OtherOptions.RenderBody()
+	<div class="clearfix"></div>
+</div>
+}
+@Accounts_View.ShowPageHeader()
+@Accounts_View.ShowMessages()
+@if (!Accounts_View.IsModal) {
+if (!Accounts_View.IsExport()) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Accounts_View.Pager.Render()
+<div class="clearfix"></div>
+</form>
+}
+}
+<form name="fAccountsview" id="fAccountsview" class="form-inline ew-form ew-view-form" method="post">
+@if (Accounts_View.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="modal" value="@ConvertToInt(Accounts_View.IsModal)">
+<table class="table table-striped table-sm ew-view-table">
+@if (Accounts_View.AccountID.Visible) { // Accounts_View.AccountID.Visible (begin)
+	<tr id="r_AccountID">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_AccountID">@Html.Raw(Accounts_View.AccountID.Caption)</span></td>
+		<td data-name="AccountID" @Html.Raw(Accounts_View.AccountID.CellAttributes)>
+<span id="el_Accounts_AccountID">
+<span @Html.Raw(Accounts_View.AccountID.ViewAttributes)>@Html.Raw(Accounts_View.AccountID.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.AccountID.Visible (end) *@
+@if (Accounts_View.AccountNumber.Visible) { // Accounts_View.AccountNumber.Visible (begin)
+	<tr id="r_AccountNumber">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_AccountNumber">@Html.Raw(Accounts_View.AccountNumber.Caption)</span></td>
+		<td data-name="AccountNumber" @Html.Raw(Accounts_View.AccountNumber.CellAttributes)>
+<span id="el_Accounts_AccountNumber">
+<span @Html.Raw(Accounts_View.AccountNumber.ViewAttributes)>@Html.Raw(Accounts_View.AccountNumber.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.AccountNumber.Visible (end) *@
+@if (Accounts_View.FirstName.Visible) { // Accounts_View.FirstName.Visible (begin)
+	<tr id="r_FirstName">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_FirstName">@Html.Raw(Accounts_View.FirstName.Caption)</span></td>
+		<td data-name="FirstName" @Html.Raw(Accounts_View.FirstName.CellAttributes)>
+<span id="el_Accounts_FirstName">
+<span @Html.Raw(Accounts_View.FirstName.ViewAttributes)>@Html.Raw(Accounts_View.FirstName.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.FirstName.Visible (end) *@
+@if (Accounts_View.OtherNames.Visible) { // Accounts_View.OtherNames.Visible (begin)
+	<tr id="r_OtherNames">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_OtherNames">@Html.Raw(Accounts_View.OtherNames.Caption)</span></td>
+		<td data-name="OtherNames" @Html.Raw(Accounts_View.OtherNames.CellAttributes)>
+<span id="el_Accounts_OtherNames">
+<span @Html.Raw(Accounts_View.OtherNames.ViewAttributes)>@Html.Raw(Accounts_View.OtherNames.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.OtherNames.Visible (end) *@
+@if (Accounts_View.LastName.Visible) { // Accounts_View.LastName.Visible (begin)
+	<tr id="r_LastName">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_LastName">@Html.Raw(Accounts_View.LastName.Caption)</span></td>
+		<td data-name="LastName" @Html.Raw(Accounts_View.LastName.CellAttributes)>
+<span id="el_Accounts_LastName">
+<span @Html.Raw(Accounts_View.LastName.ViewAttributes)>@Html.Raw(Accounts_View.LastName.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.LastName.Visible (end) *@
+@if (Accounts_View.AccountTypeID.Visible) { // Accounts_View.AccountTypeID.Visible (begin)
+	<tr id="r_AccountTypeID">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_AccountTypeID">@Html.Raw(Accounts_View.AccountTypeID.Caption)</span></td>
+		<td data-name="AccountTypeID" @Html.Raw(Accounts_View.AccountTypeID.CellAttributes)>
+<span id="el_Accounts_AccountTypeID">
+<span @Html.Raw(Accounts_View.AccountTypeID.ViewAttributes)>@Html.Raw(Accounts_View.AccountTypeID.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.AccountTypeID.Visible (end) *@
+@if (Accounts_View.BankVerificationNumber.Visible) { // Accounts_View.BankVerificationNumber.Visible (begin)
+	<tr id="r_BankVerificationNumber">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_BankVerificationNumber">@Html.Raw(Accounts_View.BankVerificationNumber.Caption)</span></td>
+		<td data-name="BankVerificationNumber" @Html.Raw(Accounts_View.BankVerificationNumber.CellAttributes)>
+<span id="el_Accounts_BankVerificationNumber">
+<span @Html.Raw(Accounts_View.BankVerificationNumber.ViewAttributes)>@Html.Raw(Accounts_View.BankVerificationNumber.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.BankVerificationNumber.Visible (end) *@
+@if (Accounts_View.DateOfBirth.Visible) { // Accounts_View.DateOfBirth.Visible (begin)
+	<tr id="r_DateOfBirth">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_DateOfBirth">@Html.Raw(Accounts_View.DateOfBirth.Caption)</span></td>
+		<td data-name="DateOfBirth" @Html.Raw(Accounts_View.DateOfBirth.CellAttributes)>
+<span id="el_Accounts_DateOfBirth">
+<span @Html.Raw(Accounts_View.DateOfBirth.ViewAttributes)>@Html.Raw(Accounts_View.DateOfBirth.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.DateOfBirth.Visible (end) *@
+@if (Accounts_View.Photo.Visible) { // Accounts_View.Photo.Visible (begin)
+	<tr id="r_Photo">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts_Photo">@Html.Raw(Accounts_View.Photo.Caption)</span></td>
+		<td data-name="Photo" @Html.Raw(Accounts_View.Photo.CellAttributes)>
+<span id="el_Accounts_Photo">
+<span @Html.Raw(Accounts_View.Photo.ViewAttributes)>@Html.Raw(await GetFileViewTag((DbField)Accounts_View.Photo, Convert.ToString(Accounts_View.Photo.GetViewValue()), false))</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View.Photo.Visible (end) *@
+@if (Accounts_View._Email.Visible) { // Accounts_View._Email.Visible (begin)
+	<tr id="r__Email">
+		<td class="@(Accounts_View.TableLeftColumnClass)"><span id="elh_Accounts__Email">@Html.Raw(Accounts_View._Email.Caption)</span></td>
+		<td data-name="_Email" @Html.Raw(Accounts_View._Email.CellAttributes)>
+<span id="el_Accounts__Email">
+<span @Html.Raw(Accounts_View._Email.ViewAttributes)>@Html.Raw(Accounts_View._Email.GetViewValue())</span>
+</span>
+</td>
+	</tr>
+} @* Accounts_View._Email.Visible (end) *@
+</table>
+@if (!Accounts_View.IsModal) {
+if (!Accounts_View.IsExport()) {
+<div><!-- DN -->
+@Accounts_View.Pager.Render()
+</div>
+<div class="clearfix"></div>
+}
+}
+@{ Accounts_View.CloseRecordset(); }
+</form>
+@Accounts_View.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+@if (!Accounts_View.IsExport()) {
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>
+}

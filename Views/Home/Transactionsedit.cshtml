@@ -1,0 +1,267 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Transactions_Edit.Page_Render();
+
+	// Check action result
+	if (Transactions_Edit.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fTransactionsedit, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "edit";
+	fTransactionsedit = currentForm = new ew.Form("fTransactionsedit", "edit");
+
+	// Validate form
+	fTransactionsedit.validate = function() {
+		if (!this.validateRequired)
+			return true; // Ignore validation
+		var $ = jQuery, fobj = this.getForm(), $fobj = $(fobj);
+		if ($fobj.find("#confirm").val() == "confirm")
+			return true;
+		var elm, felm, uelm, addcnt = 0;
+		var $k = $fobj.find("#" + this.formKeyCountName); // Get key_count
+		var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+		var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+		var gridinsert = ["insert", "gridinsert"].includes($fobj.find("#action").val()) && $k[0];
+		for (var i = startcnt; i <= rowcnt; i++) {
+			var infix = ($k[0]) ? String(i) : "";
+			$fobj.data("rowindex", infix);
+			@if (Transactions_Edit.TransactionID.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_TransactionID");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.TransactionID.RequiredErrorMessage).Replace("%s", Transactions_Edit.TransactionID.Caption)))");
+				</text>
+			}
+			@if (Transactions_Edit.TransactionDate.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_TransactionDate");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.TransactionDate.RequiredErrorMessage).Replace("%s", Transactions_Edit.TransactionDate.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_TransactionDate");
+				if (elm && !ew.checkDateDef(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Edit.TransactionDate.ErrorMessage))");
+			@if (Transactions_Edit.AccountID.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountID");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.AccountID.RequiredErrorMessage).Replace("%s", Transactions_Edit.AccountID.Caption)))");
+				</text>
+			}
+			@if (Transactions_Edit.Description.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Description");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.Description.RequiredErrorMessage).Replace("%s", Transactions_Edit.Description.Caption)))");
+				</text>
+			}
+			@if (Transactions_Edit.Debit.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Debit");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.Debit.RequiredErrorMessage).Replace("%s", Transactions_Edit.Debit.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_Debit");
+				if (elm && !ew.checkNumber(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Edit.Debit.ErrorMessage))");
+			@if (Transactions_Edit.Credit.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Credit");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Edit.Credit.RequiredErrorMessage).Replace("%s", Transactions_Edit.Credit.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_Credit");
+				if (elm && !ew.checkNumber(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Edit.Credit.ErrorMessage))");
+
+				// Call Form_CustomValidate event
+				if (!this.Form_CustomValidate(fobj))
+					return false;
+		}
+
+		// Process detail forms
+		var dfs = $fobj.find("input[name='detailpage']").get();
+		for (var i = 0; i < dfs.length; i++) {
+			var df = dfs[i], val = df.value;
+			if (val && ew.forms[val])
+				if (!ew.forms[val].validate())
+					return false;
+		}
+		return true;
+	}
+
+	// Form_CustomValidate
+	fTransactionsedit.Form_CustomValidate = function(fobj) { // DO NOT CHANGE THIS LINE!
+
+		// Your custom validation code here, return false if invalid.
+		return true;
+	}
+
+	// Use JavaScript validation or not
+	fTransactionsedit.validateRequired = @(Config.ClientValidate ? "true" : "false");
+
+	// Dynamic selection lists
+	fTransactionsedit.lists["x_AccountID"] = @Html.Raw(Transactions_Edit.AccountID.Lookup.ToClientList(Transactions_Edit));
+	fTransactionsedit.lists["x_AccountID"].options = @Html.Raw(ConvertToJson(Transactions_Edit.AccountID.LookupOptions));
+	loadjs.done("fTransactionsedit");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@Transactions_Edit.ShowPageHeader()
+@Transactions_Edit.ShowMessages()
+@if (!Transactions_Edit.IsModal) {
+<form name="ew-pager-form" class="form-inline ew-form ew-pager-form" action="@AppPath(CurrentPageName())">
+@Transactions_Edit.Pager.Render()
+<div class="clearfix"></div>
+</form>
+}
+<form name="fTransactionsedit" id="fTransactionsedit" class="@(Transactions_Edit.FormClassName)" action="@AppPath(CurrentPageName())" method="post">
+@if (Transactions_Edit.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="update">
+@if (Transactions_Edit.IsModal) {
+<input type="hidden" name="modal" value="@ConvertToInt(Transactions_Edit.IsModal)">
+}
+<div class="ew-edit-div"><!-- page* -->
+@if (Transactions_Edit.TransactionID.Visible) { // Transactions_Edit.TransactionID.Visible (begin)
+	<div id="r_TransactionID" class="form-group row">
+		<label id="elh_Transactions_TransactionID" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.TransactionID.Caption)@Html.Raw(Transactions_Edit.TransactionID.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.TransactionID.CellAttributes)>
+<span id="el_Transactions_TransactionID">
+<span @Html.Raw(Transactions_Edit.TransactionID.ViewAttributes)><input type="text" readonly class="form-control-plaintext" value="@Html.Raw(RemoveHtml(Convert.ToString(Transactions_Edit.TransactionID.EditValue)))"></span>
+</span>
+<input type="hidden" data-table="Transactions" data-field="x_TransactionID" name="x_TransactionID" id="x_TransactionID" value="@Html.Raw(HtmlEncode(Transactions_Edit.TransactionID.CurrentValue))">
+@Html.Raw(Transactions_Edit.TransactionID.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.TransactionID.Visible (end) *@
+@if (Transactions_Edit.TransactionDate.Visible) { // Transactions_Edit.TransactionDate.Visible (begin)
+	<div id="r_TransactionDate" class="form-group row">
+		<label id="elh_Transactions_TransactionDate" for="x_TransactionDate" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.TransactionDate.Caption)@Html.Raw(Transactions_Edit.TransactionDate.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.TransactionDate.CellAttributes)>
+<span id="el_Transactions_TransactionDate">
+<input type="text" data-table="Transactions" data-field="x_TransactionDate" name="x_TransactionDate" id="x_TransactionDate" size="50" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Transactions_Edit.TransactionDate.PlaceHolder))" value="@(Transactions_Edit.TransactionDate.EditValue)" @Html.Raw(Transactions_Edit.TransactionDate.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Edit.TransactionDate.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.TransactionDate.Visible (end) *@
+@if (Transactions_Edit.AccountID.Visible) { // Transactions_Edit.AccountID.Visible (begin)
+	<div id="r_AccountID" class="form-group row">
+		<label id="elh_Transactions_AccountID" for="x_AccountID" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.AccountID.Caption)@Html.Raw(Transactions_Edit.AccountID.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.AccountID.CellAttributes)>
+<span id="el_Transactions_AccountID">
+<div class="btn-group ew-dropdown-list" role="group">
+	<div class="btn-group" role="group">
+		<button type="button" class="btn form-control dropdown-toggle ew-dropdown-toggle" aria-haspopup="true" aria-expanded="false"@Html.Raw(Transactions_Edit.AccountID.ReadOnly ? " readonly" : " data-toggle=\"dropdown\"")>@(Transactions_Edit.AccountID.ViewValue)</button>
+		<div id="dsl_x_AccountID" data-repeatcolumn="1" class="dropdown-menu">
+			<div class="ew-items" style="overflow-x: hidden;">
+@(Transactions_Edit.AccountID.RadioButtonListHtml(true, "x_AccountID"))
+			</div><!-- /.ew-items -->
+		</div><!-- /.dropdown-menu -->
+		<div id="tp_x_AccountID" class="ew-template"><input type="radio" class="custom-control-input" data-table="Transactions" data-field="x_AccountID" data-value-separator="@(Transactions_Edit.AccountID.DisplayValueSeparatorAttribute)" name="x_AccountID" id="x_AccountID" value="{value}" @Html.Raw(Transactions_Edit.AccountID.EditAttributes)></div>
+	</div><!-- /.btn-group -->
+	@if (!Transactions_Edit.AccountID.ReadOnly) {
+	<button type="button" class="btn btn-default ew-dropdown-clear" disabled>
+		<i class="fas fa-times ew-icon"></i>
+	</button>
+	}
+</div><!-- /.ew-dropdown-list -->
+@Html.Raw(Transactions_Edit.AccountID.Lookup.GetParamTag(Transactions_Edit, "p_x_AccountID"))
+</span>
+@Html.Raw(Transactions_Edit.AccountID.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.AccountID.Visible (end) *@
+@if (Transactions_Edit.Description.Visible) { // Transactions_Edit.Description.Visible (begin)
+	<div id="r_Description" class="form-group row">
+		<label id="elh_Transactions_Description" for="x_Description" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.Description.Caption)@Html.Raw(Transactions_Edit.Description.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.Description.CellAttributes)>
+<span id="el_Transactions_Description">
+<textarea data-table="Transactions" data-field="x_Description" name="x_Description" id="x_Description" cols="35" rows="4" placeholder="@(HtmlEncode(Transactions_Edit.Description.PlaceHolder))" @Html.Raw(Transactions_Edit.Description.EditAttributes)>@(Transactions_Edit.Description.EditValue)</textarea>
+</span>
+@Html.Raw(Transactions_Edit.Description.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.Description.Visible (end) *@
+@if (Transactions_Edit.Debit.Visible) { // Transactions_Edit.Debit.Visible (begin)
+	<div id="r_Debit" class="form-group row">
+		<label id="elh_Transactions_Debit" for="x_Debit" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.Debit.Caption)@Html.Raw(Transactions_Edit.Debit.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.Debit.CellAttributes)>
+<span id="el_Transactions_Debit">
+<input type="text" data-table="Transactions" data-field="x_Debit" name="x_Debit" id="x_Debit" size="30" maxlength="8" placeholder="@Html.Raw(HtmlEncode(Transactions_Edit.Debit.PlaceHolder))" value="@(Transactions_Edit.Debit.EditValue)" @Html.Raw(Transactions_Edit.Debit.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Edit.Debit.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.Debit.Visible (end) *@
+@if (Transactions_Edit.Credit.Visible) { // Transactions_Edit.Credit.Visible (begin)
+	<div id="r_Credit" class="form-group row">
+		<label id="elh_Transactions_Credit" for="x_Credit" class="@(Transactions_Edit.LeftColumnClass)">@Html.Raw(Transactions_Edit.Credit.Caption)@Html.Raw(Transactions_Edit.Credit.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Edit.RightColumnClass)"><div @Html.Raw(Transactions_Edit.Credit.CellAttributes)>
+<span id="el_Transactions_Credit">
+<input type="text" data-table="Transactions" data-field="x_Credit" name="x_Credit" id="x_Credit" size="30" maxlength="8" placeholder="@Html.Raw(HtmlEncode(Transactions_Edit.Credit.PlaceHolder))" value="@(Transactions_Edit.Credit.EditValue)" @Html.Raw(Transactions_Edit.Credit.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Edit.Credit.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Edit.Credit.Visible (end) *@
+</div><!-- /page* -->
+@{ Transactions_Edit.CloseRecordset(); }
+@if (!Transactions_Edit.IsModal) {
+@:<div class="form-group row"><!-- buttons .form-group -->
+	@:<div class="@(Transactions_Edit.OffsetColumnClass)"><!-- buttons offset -->
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("SaveBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(Transactions_Edit.ReturnUrl)">@Html.Raw(Language.Phrase("CancelBtn"))</button>
+	@:</div><!-- /buttons offset -->
+@:</div><!-- /buttons .form-group -->
+}
+@if (!Transactions_Edit.IsModal) {
+<div><!-- DN -->
+@Transactions_Edit.Pager.Render()
+</div>
+<div class="clearfix"></div>
+}
+</form>
+@Transactions_Edit.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

@@ -1,0 +1,140 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	AccountTypes_Add.Page_Render();
+
+	// Check action result
+	if (AccountTypes_Add.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fAccountTypesadd, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "add";
+	fAccountTypesadd = currentForm = new ew.Form("fAccountTypesadd", "add");
+
+	// Validate form
+	fAccountTypesadd.validate = function() {
+		if (!this.validateRequired)
+			return true; // Ignore validation
+		var $ = jQuery, fobj = this.getForm(), $fobj = $(fobj);
+		if ($fobj.find("#confirm").val() == "confirm")
+			return true;
+		var elm, felm, uelm, addcnt = 0;
+		var $k = $fobj.find("#" + this.formKeyCountName); // Get key_count
+		var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+		var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+		var gridinsert = ["insert", "gridinsert"].includes($fobj.find("#action").val()) && $k[0];
+		for (var i = startcnt; i <= rowcnt; i++) {
+			var infix = ($k[0]) ? String(i) : "";
+			$fobj.data("rowindex", infix);
+			@if (AccountTypes_Add.AccountTypeName.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountTypeName");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(AccountTypes_Add.AccountTypeName.RequiredErrorMessage).Replace("%s", AccountTypes_Add.AccountTypeName.Caption)))");
+				</text>
+			}
+
+				// Call Form_CustomValidate event
+				if (!this.Form_CustomValidate(fobj))
+					return false;
+		}
+
+		// Process detail forms
+		var dfs = $fobj.find("input[name='detailpage']").get();
+		for (var i = 0; i < dfs.length; i++) {
+			var df = dfs[i], val = df.value;
+			if (val && ew.forms[val])
+				if (!ew.forms[val].validate())
+					return false;
+		}
+		return true;
+	}
+
+	// Form_CustomValidate
+	fAccountTypesadd.Form_CustomValidate = function(fobj) { // DO NOT CHANGE THIS LINE!
+
+		// Your custom validation code here, return false if invalid.
+		return true;
+	}
+
+	// Use JavaScript validation or not
+	fAccountTypesadd.validateRequired = @(Config.ClientValidate ? "true" : "false");
+
+	// Dynamic selection lists
+	loadjs.done("fAccountTypesadd");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@AccountTypes_Add.ShowPageHeader()
+@AccountTypes_Add.ShowMessages()
+<form name="fAccountTypesadd" id="fAccountTypesadd" class="@(AccountTypes_Add.FormClassName)" action="@AppPath(CurrentPageName())" method="post">
+@if (AccountTypes_Add.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="insert">
+<input type="hidden" name="modal" value="@ConvertToInt(AccountTypes_Add.IsModal)">
+<div class="ew-add-div"><!-- page* -->
+@if (AccountTypes_Add.AccountTypeName.Visible) { // AccountTypes_Add.AccountTypeName.Visible (begin)
+	<div id="r_AccountTypeName" class="form-group row">
+		<label id="elh_AccountTypes_AccountTypeName" for="x_AccountTypeName" class="@(AccountTypes_Add.LeftColumnClass)">@Html.Raw(AccountTypes_Add.AccountTypeName.Caption)@Html.Raw(AccountTypes_Add.AccountTypeName.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(AccountTypes_Add.RightColumnClass)"><div @Html.Raw(AccountTypes_Add.AccountTypeName.CellAttributes)>
+<span id="el_AccountTypes_AccountTypeName">
+<input type="text" data-table="AccountTypes" data-field="x_AccountTypeName" name="x_AccountTypeName" id="x_AccountTypeName" size="30" maxlength="50" placeholder="@Html.Raw(HtmlEncode(AccountTypes_Add.AccountTypeName.PlaceHolder))" value="@(AccountTypes_Add.AccountTypeName.EditValue)" @Html.Raw(AccountTypes_Add.AccountTypeName.EditAttributes)>
+</span>
+@Html.Raw(AccountTypes_Add.AccountTypeName.CustomMsg)</div></div>
+	</div>
+} @* AccountTypes_Add.AccountTypeName.Visible (end) *@
+</div><!-- /page* -->
+@{ AccountTypes_Add.CloseRecordset(); }
+@if (!AccountTypes_Add.IsModal) {
+@:<div class="form-group row"><!-- buttons .form-group -->
+	@:<div class="@(AccountTypes_Add.OffsetColumnClass)"><!-- buttons offset -->
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("AddBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(AccountTypes_Add.ReturnUrl)"> @Html.Raw(Language.Phrase("CancelBtn"))</button>
+	@:</div><!-- /buttons offset -->
+@:</div><!-- /buttons .form-group -->
+}
+</form>
+@AccountTypes_Add.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

@@ -1,0 +1,235 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Transactions_Add.Page_Render();
+
+	// Check action result
+	if (Transactions_Add.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fTransactionsadd, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "add";
+	fTransactionsadd = currentForm = new ew.Form("fTransactionsadd", "add");
+
+	// Validate form
+	fTransactionsadd.validate = function() {
+		if (!this.validateRequired)
+			return true; // Ignore validation
+		var $ = jQuery, fobj = this.getForm(), $fobj = $(fobj);
+		if ($fobj.find("#confirm").val() == "confirm")
+			return true;
+		var elm, felm, uelm, addcnt = 0;
+		var $k = $fobj.find("#" + this.formKeyCountName); // Get key_count
+		var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+		var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+		var gridinsert = ["insert", "gridinsert"].includes($fobj.find("#action").val()) && $k[0];
+		for (var i = startcnt; i <= rowcnt; i++) {
+			var infix = ($k[0]) ? String(i) : "";
+			$fobj.data("rowindex", infix);
+			@if (Transactions_Add.TransactionDate.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_TransactionDate");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Add.TransactionDate.RequiredErrorMessage).Replace("%s", Transactions_Add.TransactionDate.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_TransactionDate");
+				if (elm && !ew.checkDateDef(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Add.TransactionDate.ErrorMessage))");
+			@if (Transactions_Add.AccountID.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_AccountID");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Add.AccountID.RequiredErrorMessage).Replace("%s", Transactions_Add.AccountID.Caption)))");
+				</text>
+			}
+			@if (Transactions_Add.Description.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Description");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Add.Description.RequiredErrorMessage).Replace("%s", Transactions_Add.Description.Caption)))");
+				</text>
+			}
+			@if (Transactions_Add.Debit.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Debit");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Add.Debit.RequiredErrorMessage).Replace("%s", Transactions_Add.Debit.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_Debit");
+				if (elm && !ew.checkNumber(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Add.Debit.ErrorMessage))");
+			@if (Transactions_Add.Credit.Required) {
+				<text>
+				elm = this.getElements("x" + infix + "_Credit");
+				if (elm && !ew.isHidden(elm) && !ew.hasValue(elm))
+					return this.onError(elm, "@Html.Raw(JsEncode(Convert.ToString(Transactions_Add.Credit.RequiredErrorMessage).Replace("%s", Transactions_Add.Credit.Caption)))");
+				</text>
+			}
+				elm = this.getElements("x" + infix + "_Credit");
+				if (elm && !ew.checkNumber(elm.value))
+					return this.onError(elm, "@(JsEncode(Transactions_Add.Credit.ErrorMessage))");
+
+				// Call Form_CustomValidate event
+				if (!this.Form_CustomValidate(fobj))
+					return false;
+		}
+
+		// Process detail forms
+		var dfs = $fobj.find("input[name='detailpage']").get();
+		for (var i = 0; i < dfs.length; i++) {
+			var df = dfs[i], val = df.value;
+			if (val && ew.forms[val])
+				if (!ew.forms[val].validate())
+					return false;
+		}
+		return true;
+	}
+
+	// Form_CustomValidate
+	fTransactionsadd.Form_CustomValidate = function(fobj) { // DO NOT CHANGE THIS LINE!
+
+		// Your custom validation code here, return false if invalid.
+		return true;
+	}
+
+	// Use JavaScript validation or not
+	fTransactionsadd.validateRequired = @(Config.ClientValidate ? "true" : "false");
+
+	// Dynamic selection lists
+	fTransactionsadd.lists["x_AccountID"] = @Html.Raw(Transactions_Add.AccountID.Lookup.ToClientList(Transactions_Add));
+	fTransactionsadd.lists["x_AccountID"].options = @Html.Raw(ConvertToJson(Transactions_Add.AccountID.LookupOptions));
+	loadjs.done("fTransactionsadd");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@Transactions_Add.ShowPageHeader()
+@Transactions_Add.ShowMessages()
+<form name="fTransactionsadd" id="fTransactionsadd" class="@(Transactions_Add.FormClassName)" action="@AppPath(CurrentPageName())" method="post">
+@if (Transactions_Add.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="insert">
+<input type="hidden" name="modal" value="@ConvertToInt(Transactions_Add.IsModal)">
+<div class="ew-add-div"><!-- page* -->
+@if (Transactions_Add.TransactionDate.Visible) { // Transactions_Add.TransactionDate.Visible (begin)
+	<div id="r_TransactionDate" class="form-group row">
+		<label id="elh_Transactions_TransactionDate" for="x_TransactionDate" class="@(Transactions_Add.LeftColumnClass)">@Html.Raw(Transactions_Add.TransactionDate.Caption)@Html.Raw(Transactions_Add.TransactionDate.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Add.RightColumnClass)"><div @Html.Raw(Transactions_Add.TransactionDate.CellAttributes)>
+<span id="el_Transactions_TransactionDate">
+<input type="text" data-table="Transactions" data-field="x_TransactionDate" name="x_TransactionDate" id="x_TransactionDate" size="50" maxlength="50" placeholder="@Html.Raw(HtmlEncode(Transactions_Add.TransactionDate.PlaceHolder))" value="@(Transactions_Add.TransactionDate.EditValue)" @Html.Raw(Transactions_Add.TransactionDate.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Add.TransactionDate.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Add.TransactionDate.Visible (end) *@
+@if (Transactions_Add.AccountID.Visible) { // Transactions_Add.AccountID.Visible (begin)
+	<div id="r_AccountID" class="form-group row">
+		<label id="elh_Transactions_AccountID" for="x_AccountID" class="@(Transactions_Add.LeftColumnClass)">@Html.Raw(Transactions_Add.AccountID.Caption)@Html.Raw(Transactions_Add.AccountID.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Add.RightColumnClass)"><div @Html.Raw(Transactions_Add.AccountID.CellAttributes)>
+<span id="el_Transactions_AccountID">
+<div class="btn-group ew-dropdown-list" role="group">
+	<div class="btn-group" role="group">
+		<button type="button" class="btn form-control dropdown-toggle ew-dropdown-toggle" aria-haspopup="true" aria-expanded="false"@Html.Raw(Transactions_Add.AccountID.ReadOnly ? " readonly" : " data-toggle=\"dropdown\"")>@(Transactions_Add.AccountID.ViewValue)</button>
+		<div id="dsl_x_AccountID" data-repeatcolumn="1" class="dropdown-menu">
+			<div class="ew-items" style="overflow-x: hidden;">
+@(Transactions_Add.AccountID.RadioButtonListHtml(true, "x_AccountID"))
+			</div><!-- /.ew-items -->
+		</div><!-- /.dropdown-menu -->
+		<div id="tp_x_AccountID" class="ew-template"><input type="radio" class="custom-control-input" data-table="Transactions" data-field="x_AccountID" data-value-separator="@(Transactions_Add.AccountID.DisplayValueSeparatorAttribute)" name="x_AccountID" id="x_AccountID" value="{value}" @Html.Raw(Transactions_Add.AccountID.EditAttributes)></div>
+	</div><!-- /.btn-group -->
+	@if (!Transactions_Add.AccountID.ReadOnly) {
+	<button type="button" class="btn btn-default ew-dropdown-clear" disabled>
+		<i class="fas fa-times ew-icon"></i>
+	</button>
+	}
+</div><!-- /.ew-dropdown-list -->
+@Html.Raw(Transactions_Add.AccountID.Lookup.GetParamTag(Transactions_Add, "p_x_AccountID"))
+</span>
+@Html.Raw(Transactions_Add.AccountID.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Add.AccountID.Visible (end) *@
+@if (Transactions_Add.Description.Visible) { // Transactions_Add.Description.Visible (begin)
+	<div id="r_Description" class="form-group row">
+		<label id="elh_Transactions_Description" for="x_Description" class="@(Transactions_Add.LeftColumnClass)">@Html.Raw(Transactions_Add.Description.Caption)@Html.Raw(Transactions_Add.Description.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Add.RightColumnClass)"><div @Html.Raw(Transactions_Add.Description.CellAttributes)>
+<span id="el_Transactions_Description">
+<textarea data-table="Transactions" data-field="x_Description" name="x_Description" id="x_Description" cols="35" rows="4" placeholder="@(HtmlEncode(Transactions_Add.Description.PlaceHolder))" @Html.Raw(Transactions_Add.Description.EditAttributes)>@(Transactions_Add.Description.EditValue)</textarea>
+</span>
+@Html.Raw(Transactions_Add.Description.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Add.Description.Visible (end) *@
+@if (Transactions_Add.Debit.Visible) { // Transactions_Add.Debit.Visible (begin)
+	<div id="r_Debit" class="form-group row">
+		<label id="elh_Transactions_Debit" for="x_Debit" class="@(Transactions_Add.LeftColumnClass)">@Html.Raw(Transactions_Add.Debit.Caption)@Html.Raw(Transactions_Add.Debit.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Add.RightColumnClass)"><div @Html.Raw(Transactions_Add.Debit.CellAttributes)>
+<span id="el_Transactions_Debit">
+<input type="text" data-table="Transactions" data-field="x_Debit" name="x_Debit" id="x_Debit" size="30" maxlength="8" placeholder="@Html.Raw(HtmlEncode(Transactions_Add.Debit.PlaceHolder))" value="@(Transactions_Add.Debit.EditValue)" @Html.Raw(Transactions_Add.Debit.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Add.Debit.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Add.Debit.Visible (end) *@
+@if (Transactions_Add.Credit.Visible) { // Transactions_Add.Credit.Visible (begin)
+	<div id="r_Credit" class="form-group row">
+		<label id="elh_Transactions_Credit" for="x_Credit" class="@(Transactions_Add.LeftColumnClass)">@Html.Raw(Transactions_Add.Credit.Caption)@Html.Raw(Transactions_Add.Credit.Required ? Language.Phrase("FieldRequiredIndicator") : "")</label>
+		<div class="@(Transactions_Add.RightColumnClass)"><div @Html.Raw(Transactions_Add.Credit.CellAttributes)>
+<span id="el_Transactions_Credit">
+<input type="text" data-table="Transactions" data-field="x_Credit" name="x_Credit" id="x_Credit" size="30" maxlength="8" placeholder="@Html.Raw(HtmlEncode(Transactions_Add.Credit.PlaceHolder))" value="@(Transactions_Add.Credit.EditValue)" @Html.Raw(Transactions_Add.Credit.EditAttributes)>
+</span>
+@Html.Raw(Transactions_Add.Credit.CustomMsg)</div></div>
+	</div>
+} @* Transactions_Add.Credit.Visible (end) *@
+</div><!-- /page* -->
+@{ Transactions_Add.CloseRecordset(); }
+@if (!Transactions_Add.IsModal) {
+@:<div class="form-group row"><!-- buttons .form-group -->
+	@:<div class="@(Transactions_Add.OffsetColumnClass)"><!-- buttons offset -->
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("AddBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(Transactions_Add.ReturnUrl)"> @Html.Raw(Language.Phrase("CancelBtn"))</button>
+	@:</div><!-- /buttons offset -->
+@:</div><!-- /buttons .form-group -->
+}
+</form>
+@Transactions_Add.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

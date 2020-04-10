@@ -1,0 +1,194 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	Accounts_Delete.Page_Render();
+
+	// Check action result
+	if (Accounts_Delete.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fAccountsdelete, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "delete";
+	fAccountsdelete = currentForm = new ew.Form("fAccountsdelete", "delete");
+	loadjs.done("fAccountsdelete");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@Accounts_Delete.ShowPageHeader()
+@Accounts_Delete.ShowMessages()
+<form name="fAccountsdelete" id="fAccountsdelete" class="form-inline ew-form ew-delete-form" action="@AppPath(CurrentPageName())" method="post">
+@if (Accounts_Delete.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="delete">
+@foreach (string key in Accounts_Delete.RecordKeys) {
+<input type="hidden" name="key_m[]" value="@key">
+}
+<div class="card ew-card ew-grid">
+<div class="@ResponsiveTableClass() card-body ew-grid-middle-panel">
+<table class="table ew-table">
+	<thead>
+	<tr class="ew-table-header">
+@if (Accounts_Delete.AccountID.Visible) { // Accounts_Delete.AccountID.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.AccountID.HeaderCellClass)"><span id="elh_Accounts_AccountID" class="Accounts_AccountID">@Html.Raw(Accounts_Delete.AccountID.Caption)</span></th>
+} @* Accounts_Delete.AccountID.Visible (end) *@
+@if (Accounts_Delete.AccountNumber.Visible) { // Accounts_Delete.AccountNumber.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.AccountNumber.HeaderCellClass)"><span id="elh_Accounts_AccountNumber" class="Accounts_AccountNumber">@Html.Raw(Accounts_Delete.AccountNumber.Caption)</span></th>
+} @* Accounts_Delete.AccountNumber.Visible (end) *@
+@if (Accounts_Delete.FirstName.Visible) { // Accounts_Delete.FirstName.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.FirstName.HeaderCellClass)"><span id="elh_Accounts_FirstName" class="Accounts_FirstName">@Html.Raw(Accounts_Delete.FirstName.Caption)</span></th>
+} @* Accounts_Delete.FirstName.Visible (end) *@
+@if (Accounts_Delete.OtherNames.Visible) { // Accounts_Delete.OtherNames.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.OtherNames.HeaderCellClass)"><span id="elh_Accounts_OtherNames" class="Accounts_OtherNames">@Html.Raw(Accounts_Delete.OtherNames.Caption)</span></th>
+} @* Accounts_Delete.OtherNames.Visible (end) *@
+@if (Accounts_Delete.LastName.Visible) { // Accounts_Delete.LastName.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.LastName.HeaderCellClass)"><span id="elh_Accounts_LastName" class="Accounts_LastName">@Html.Raw(Accounts_Delete.LastName.Caption)</span></th>
+} @* Accounts_Delete.LastName.Visible (end) *@
+@if (Accounts_Delete.AccountTypeID.Visible) { // Accounts_Delete.AccountTypeID.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.AccountTypeID.HeaderCellClass)"><span id="elh_Accounts_AccountTypeID" class="Accounts_AccountTypeID">@Html.Raw(Accounts_Delete.AccountTypeID.Caption)</span></th>
+} @* Accounts_Delete.AccountTypeID.Visible (end) *@
+@if (Accounts_Delete.BankVerificationNumber.Visible) { // Accounts_Delete.BankVerificationNumber.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.BankVerificationNumber.HeaderCellClass)"><span id="elh_Accounts_BankVerificationNumber" class="Accounts_BankVerificationNumber">@Html.Raw(Accounts_Delete.BankVerificationNumber.Caption)</span></th>
+} @* Accounts_Delete.BankVerificationNumber.Visible (end) *@
+@if (Accounts_Delete.DateOfBirth.Visible) { // Accounts_Delete.DateOfBirth.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete.DateOfBirth.HeaderCellClass)"><span id="elh_Accounts_DateOfBirth" class="Accounts_DateOfBirth">@Html.Raw(Accounts_Delete.DateOfBirth.Caption)</span></th>
+} @* Accounts_Delete.DateOfBirth.Visible (end) *@
+@if (Accounts_Delete._Email.Visible) { // Accounts_Delete._Email.Visible (begin)
+		<th class="@Html.Raw(Accounts_Delete._Email.HeaderCellClass)"><span id="elh_Accounts__Email" class="Accounts__Email">@Html.Raw(Accounts_Delete._Email.Caption)</span></th>
+} @* Accounts_Delete._Email.Visible (end) *@
+	</tr>
+	</thead>
+	<tbody>
+@{ Accounts_Delete.RecordCount = 0; }
+@while (Accounts_Delete.Recordset != null && await Accounts_Delete.Recordset.ReadAsync()) { // DN
+	Accounts_Delete.RecordCount++;
+	Accounts_Delete.RowCount++;
+
+	// Set row properties
+	Accounts_Delete.ResetAttributes();
+	Accounts_Delete.RowType = Config.RowTypeView; // View
+
+	// Get the field contents
+	await Accounts_Delete.LoadRowValues(Accounts_Delete.Recordset);
+
+	// Render row
+	await Accounts_Delete.RenderRow();
+	<tr @Html.Raw(Accounts.RowAttributes)>
+@if (Accounts_Delete.AccountID.Visible) { // Accounts_Delete.AccountID.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.AccountID.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_AccountID" class="Accounts_AccountID">
+<span @Html.Raw(Accounts_Delete.AccountID.ViewAttributes)>@Html.Raw(Accounts_Delete.AccountID.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.AccountID.Visible (end) *@
+@if (Accounts_Delete.AccountNumber.Visible) { // Accounts_Delete.AccountNumber.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.AccountNumber.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_AccountNumber" class="Accounts_AccountNumber">
+<span @Html.Raw(Accounts_Delete.AccountNumber.ViewAttributes)>@Html.Raw(Accounts_Delete.AccountNumber.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.AccountNumber.Visible (end) *@
+@if (Accounts_Delete.FirstName.Visible) { // Accounts_Delete.FirstName.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.FirstName.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_FirstName" class="Accounts_FirstName">
+<span @Html.Raw(Accounts_Delete.FirstName.ViewAttributes)>@Html.Raw(Accounts_Delete.FirstName.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.FirstName.Visible (end) *@
+@if (Accounts_Delete.OtherNames.Visible) { // Accounts_Delete.OtherNames.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.OtherNames.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_OtherNames" class="Accounts_OtherNames">
+<span @Html.Raw(Accounts_Delete.OtherNames.ViewAttributes)>@Html.Raw(Accounts_Delete.OtherNames.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.OtherNames.Visible (end) *@
+@if (Accounts_Delete.LastName.Visible) { // Accounts_Delete.LastName.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.LastName.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_LastName" class="Accounts_LastName">
+<span @Html.Raw(Accounts_Delete.LastName.ViewAttributes)>@Html.Raw(Accounts_Delete.LastName.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.LastName.Visible (end) *@
+@if (Accounts_Delete.AccountTypeID.Visible) { // Accounts_Delete.AccountTypeID.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.AccountTypeID.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_AccountTypeID" class="Accounts_AccountTypeID">
+<span @Html.Raw(Accounts_Delete.AccountTypeID.ViewAttributes)>@Html.Raw(Accounts_Delete.AccountTypeID.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.AccountTypeID.Visible (end) *@
+@if (Accounts_Delete.BankVerificationNumber.Visible) { // Accounts_Delete.BankVerificationNumber.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.BankVerificationNumber.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_BankVerificationNumber" class="Accounts_BankVerificationNumber">
+<span @Html.Raw(Accounts_Delete.BankVerificationNumber.ViewAttributes)>@Html.Raw(Accounts_Delete.BankVerificationNumber.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.BankVerificationNumber.Visible (end) *@
+@if (Accounts_Delete.DateOfBirth.Visible) { // Accounts_Delete.DateOfBirth.Visible (begin)
+		<td @Html.Raw(Accounts_Delete.DateOfBirth.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts_DateOfBirth" class="Accounts_DateOfBirth">
+<span @Html.Raw(Accounts_Delete.DateOfBirth.ViewAttributes)>@Html.Raw(Accounts_Delete.DateOfBirth.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete.DateOfBirth.Visible (end) *@
+@if (Accounts_Delete._Email.Visible) { // Accounts_Delete._Email.Visible (begin)
+		<td @Html.Raw(Accounts_Delete._Email.CellAttributes)>
+<span id="el@(Accounts_Delete.RowCount)_Accounts__Email" class="Accounts__Email">
+<span @Html.Raw(Accounts_Delete._Email.ViewAttributes)>@Html.Raw(Accounts_Delete._Email.GetViewValue())</span>
+</span>
+</td>
+} @* Accounts_Delete._Email.Visible (end) *@
+	</tr>
+}
+@{ Accounts_Delete.CloseRecordset(); }
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("DeleteBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(Accounts_Delete.ReturnUrl)">@Language.Phrase("CancelBtn")</button>
+</div>
+</form>
+@Accounts_Delete.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>

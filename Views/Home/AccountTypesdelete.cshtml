@@ -1,0 +1,124 @@
+@{
+
+	// View
+	View = this;
+	SetClientVar("login", LoginStatus);
+
+	// Global Page Rendering event
+	Page_Rendering();
+
+	// Page Render event
+	AccountTypes_Delete.Page_Render();
+
+	// Check action result
+	if (AccountTypes_Delete.ActionResult is EmptyResult) { // Terminate page
+		return;
+	}
+
+	// Layout
+	Layout = "_Layout";
+
+	// Local variables (Temp data)
+	#pragma warning disable 168
+	string sqlWrk, filterWrk, whereWrk, curVal;
+	List<Dictionary<string, object>> rswrk;
+	string[] arWrk;
+	List<object> listWrk;
+	Func<string> lookupFilter;
+	#pragma warning restore 168
+}
+<script>
+var fAccountTypesdelete, currentPageID;
+loadjs.ready("head", function() {
+
+	// Form object
+	currentPageID = ew.PAGE_ID = "delete";
+	fAccountTypesdelete = currentForm = new ew.Form("fAccountTypesdelete", "delete");
+	loadjs.done("fAccountTypesdelete");
+});
+</script>
+<script>
+loadjs.ready("head", function() {
+
+	// Client script
+	// Write your client script here, no need to add script tags.
+
+});
+</script>
+@AccountTypes_Delete.ShowPageHeader()
+@AccountTypes_Delete.ShowMessages()
+<form name="fAccountTypesdelete" id="fAccountTypesdelete" class="form-inline ew-form ew-delete-form" action="@AppPath(CurrentPageName())" method="post">
+@if (AccountTypes_Delete.CheckToken) {
+	@Html.AntiForgeryToken()
+}
+<input type="hidden" name="action" id="action" value="delete">
+@foreach (string key in AccountTypes_Delete.RecordKeys) {
+<input type="hidden" name="key_m[]" value="@key">
+}
+<div class="card ew-card ew-grid">
+<div class="@ResponsiveTableClass() card-body ew-grid-middle-panel">
+<table class="table ew-table">
+	<thead>
+	<tr class="ew-table-header">
+@if (AccountTypes_Delete.AccountTypeID.Visible) { // AccountTypes_Delete.AccountTypeID.Visible (begin)
+		<th class="@Html.Raw(AccountTypes_Delete.AccountTypeID.HeaderCellClass)"><span id="elh_AccountTypes_AccountTypeID" class="AccountTypes_AccountTypeID">@Html.Raw(AccountTypes_Delete.AccountTypeID.Caption)</span></th>
+} @* AccountTypes_Delete.AccountTypeID.Visible (end) *@
+@if (AccountTypes_Delete.AccountTypeName.Visible) { // AccountTypes_Delete.AccountTypeName.Visible (begin)
+		<th class="@Html.Raw(AccountTypes_Delete.AccountTypeName.HeaderCellClass)"><span id="elh_AccountTypes_AccountTypeName" class="AccountTypes_AccountTypeName">@Html.Raw(AccountTypes_Delete.AccountTypeName.Caption)</span></th>
+} @* AccountTypes_Delete.AccountTypeName.Visible (end) *@
+	</tr>
+	</thead>
+	<tbody>
+@{ AccountTypes_Delete.RecordCount = 0; }
+@while (AccountTypes_Delete.Recordset != null && await AccountTypes_Delete.Recordset.ReadAsync()) { // DN
+	AccountTypes_Delete.RecordCount++;
+	AccountTypes_Delete.RowCount++;
+
+	// Set row properties
+	AccountTypes_Delete.ResetAttributes();
+	AccountTypes_Delete.RowType = Config.RowTypeView; // View
+
+	// Get the field contents
+	await AccountTypes_Delete.LoadRowValues(AccountTypes_Delete.Recordset);
+
+	// Render row
+	await AccountTypes_Delete.RenderRow();
+	<tr @Html.Raw(AccountTypes.RowAttributes)>
+@if (AccountTypes_Delete.AccountTypeID.Visible) { // AccountTypes_Delete.AccountTypeID.Visible (begin)
+		<td @Html.Raw(AccountTypes_Delete.AccountTypeID.CellAttributes)>
+<span id="el@(AccountTypes_Delete.RowCount)_AccountTypes_AccountTypeID" class="AccountTypes_AccountTypeID">
+<span @Html.Raw(AccountTypes_Delete.AccountTypeID.ViewAttributes)>@Html.Raw(AccountTypes_Delete.AccountTypeID.GetViewValue())</span>
+</span>
+</td>
+} @* AccountTypes_Delete.AccountTypeID.Visible (end) *@
+@if (AccountTypes_Delete.AccountTypeName.Visible) { // AccountTypes_Delete.AccountTypeName.Visible (begin)
+		<td @Html.Raw(AccountTypes_Delete.AccountTypeName.CellAttributes)>
+<span id="el@(AccountTypes_Delete.RowCount)_AccountTypes_AccountTypeName" class="AccountTypes_AccountTypeName">
+<span @Html.Raw(AccountTypes_Delete.AccountTypeName.ViewAttributes)>@Html.Raw(AccountTypes_Delete.AccountTypeName.GetViewValue())</span>
+</span>
+</td>
+} @* AccountTypes_Delete.AccountTypeName.Visible (end) *@
+	</tr>
+}
+@{ AccountTypes_Delete.CloseRecordset(); }
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<button class="btn btn-primary ew-btn" name="btn-action" id="btn-action" type="submit">@Html.Raw(Language.Phrase("DeleteBtn"))</button>
+<button class="btn btn-default ew-btn" name="btn-cancel" id="btn-cancel" type="button" data-href="@AppPath(AccountTypes_Delete.ReturnUrl)">@Language.Phrase("CancelBtn")</button>
+</div>
+</form>
+@AccountTypes_Delete.ShowPageFooter()
+@ShowDebugMessage()
+@ElapsedTime()
+<script>
+loadjs.ready("load", function() {
+
+	// Startup script
+	// Write your table-specific startup script here
+	// document.write("page loaded");
+
+});
+</script>
