@@ -14,5 +14,4 @@ Used Design Patterns
 MVC
 
 
-
-<img src="images/image 3.png">
+[![Image-1.jpg](https://i.postimg.cc/4yrwLTYX/Image-1.jpg)](https://postimg.cc/jn4z2m61)
