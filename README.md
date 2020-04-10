@@ -19,5 +19,5 @@ MVC
 
 
 <p>
-    <img src=images/image 3.png" width="220" height="240" />
+    <img src=images/image3.png" width="220" height="240" />
 </p>
